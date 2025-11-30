@@ -1,0 +1,14 @@
+{
+  "web":{
+    "client_id":"1033721804822-efm7d3vs3c7hv8rr3pt3ni1oa5u456u9.apps.googleusercontent.com",
+    "project_id":"exptra",
+    "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+    "token_uri":"https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret":"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",
+    "redirect_uris":["https://exptra.ddns.net/api/oauth2-redirect","https://exptra.ddns.net/_/"],
+    "javascript_origins":["https://exptra.ddns.net"],
+    "smtp_gmail_email_app": "simone.rossi0407@gmail.com",
+    "smtp_gmail_password_app": "whriyciwkqwdhxgt"
+  }
+}
