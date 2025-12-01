@@ -9,6 +9,13 @@ export function Input({ className, ...props }) {
         "focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent",
         "transition-all duration-200",
         "disabled:cursor-not-allowed disabled:opacity-50",
+        // Prevent autofill from changing background color
+        "[&:-webkit-autofill]:bg-surface-light [&:-webkit-autofill]:text-white",
+        "[&:-webkit-autofill]:[-webkit-text-fill-color:white]",
+        "[&:-webkit-autofill]:[-webkit-box-shadow:0_0_0px_1000px_rgb(26,26,36)_inset]",
+        "[&:-webkit-autofill:hover]:[-webkit-box-shadow:0_0_0px_1000px_rgb(26,26,36)_inset]",
+        "[&:-webkit-autofill:focus]:[-webkit-box-shadow:0_0_0px_1000px_rgb(26,26,36)_inset]",
+        "[&:-webkit-autofill:active]:[-webkit-box-shadow:0_0_0px_1000px_rgb(26,26,36)_inset]",
         className
       )}
       {...props}

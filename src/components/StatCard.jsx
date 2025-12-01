@@ -3,7 +3,7 @@ import { TrendingUp, TrendingDown } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-export function StatCard({ title, amount, change, trend, icon: Icon, delay = 0 }) {
+export function StatCard({ title, amount, change, trend, icon: Icon, delay = 0, className = '', footer }) {
   const isPositive = trend === 'up';
 
   return (
@@ -11,9 +11,10 @@ export function StatCard({ title, amount, change, trend, icon: Icon, delay = 0 }
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
+      className={className}
     >
-      <Card className="hover:shadow-glow transition-all duration-300 cursor-pointer group">
-        <div className="p-6">
+      <Card className="hover:shadow-glow transition-all duration-300 cursor-pointer group h-full flex flex-col">
+        <div className="p-6 flex-1">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
               {title}
@@ -47,6 +48,12 @@ export function StatCard({ title, amount, change, trend, icon: Icon, delay = 0 }
             )}
           </div>
         </div>
+
+        {footer && (
+          <div className="border-t border-gray-800/50">
+            {footer}
+          </div>
+        )}
       </Card>
     </motion.div>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { SelectNative } from "@/components/ui/select";
 import { CalendarDatePicker } from "@/components/ui/date-picker";
 import {
   X,
-  Plus,
+  Edit2,
   ShoppingBag,
   Coffee,
   Car,
@@ -24,7 +24,6 @@ import {
   UtensilsCrossed,
   Shirt,
   Package,
-  Upload,
   Repeat,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,13 +56,12 @@ const PAYMENT_METHODS = [
   { value: 'pay in instalments', label: 'Rateizzato' },
 ];
 
-export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function EditExpenseModal({ isOpen, onClose, onUpdateExpense, expense, categories }) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     amount: "",
-    category: categories.length > 0 ? categories[0].id : "",
+    category: "",
     date: new Date().toISOString().split('T')[0],
     currency: "EUR",
     notes: "",
@@ -72,15 +70,30 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
     recurringDate: "",
   });
 
+  // Update form data when expense changes
+  useEffect(() => {
+    if (expense) {
+      setFormData({
+        title: expense.title || "",
+        description: expense.description || "",
+        amount: expense.amount ? expense.amount.toString() : "",
+        category: expense.category || (categories.length > 0 ? categories[0].id : ""),
+        date: expense.date || new Date().toISOString().split('T')[0],
+        currency: expense.currency || "EUR",
+        notes: expense.notes || "",
+        paymentMethod: expense.paymentMethod || "cash",
+        isRecurring: expense.isRecurring || false,
+        recurringDate: expense.recurringDate || "",
+      });
+    }
+  }, [expense, categories]);
+
   const getIconComponent = (iconName) => {
     return ICON_MAP[iconName] || Package;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Prevent double submission
-    if (isSubmitting) return;
 
     // Validate required fields according to PocketBase schema
     if (!formData.title || !formData.description || !formData.amount || !formData.category || !formData.date || !formData.currency || !formData.paymentMethod) {
@@ -93,39 +106,20 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
       return;
     }
 
-    setIsSubmitting(true);
+    onUpdateExpense(expense.id, {
+      title: formData.title,
+      description: formData.description,
+      amount: parseFloat(formData.amount),
+      category: formData.category,
+      date: formData.date,
+      currency: formData.currency,
+      notes: formData.notes,
+      paymentMethod: formData.paymentMethod,
+      isRecurring: formData.isRecurring,
+      recurringDate: formData.recurringDate,
+    });
 
-    try {
-      await onAddExpense({
-        title: formData.title,
-        description: formData.description,
-        amount: parseFloat(formData.amount),
-        category: formData.category,
-        date: formData.date,
-        currency: formData.currency,
-        notes: formData.notes,
-        paymentMethod: formData.paymentMethod,
-        isRecurring: formData.isRecurring,
-        recurringDate: formData.recurringDate,
-      });
-
-      setFormData({
-        title: "",
-        description: "",
-        amount: "",
-        category: categories.length > 0 ? categories[0].id : "",
-        date: new Date().toISOString().split('T')[0],
-        currency: "EUR",
-        notes: "",
-        paymentMethod: "cash",
-        isRecurring: false,
-        recurringDate: "",
-      });
-
-      onClose();
-    } finally {
-      setIsSubmitting(false);
-    }
+    onClose();
   };
 
   const handleChange = (e) => {
@@ -162,8 +156,8 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                 <CardHeader className="border-b border-gray-800/50">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <Plus className="w-5 h-5 text-primary" />
-                      Aggiungi Spesa
+                      <Edit2 className="w-5 h-5 text-primary" />
+                      Modifica Spesa
                     </CardTitle>
                     <button
                       onClick={onClose}
@@ -206,7 +200,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                       />
                     </div>
 
-                    {/* Data, Valuta, Importo */}
+                    {/* Date, Currency, Amount */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <CalendarDatePicker
                         label="Data *"
@@ -248,7 +242,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                       </div>
                     </div>
 
-                    {/* Metodo di Pagamento */}
+                    {/* Payment Method */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-300">
                         Metodo di Pagamento *
@@ -274,7 +268,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                       </div>
                     </div>
 
-                    {/* Categoria */}
+                    {/* Category */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-300">
                         Categoria *
@@ -356,20 +350,19 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                       )}
                     </div>
 
-                    {/* Bottoni */}
+                    {/* Buttons */}
                     <div className="flex gap-3 pt-4 sticky bottom-0 bg-surface/95 backdrop-blur-sm pb-2">
                       <Button
                         type="button"
                         variant="secondary"
                         onClick={onClose}
                         className="flex-1"
-                        disabled={isSubmitting}
                       >
                         Annulla
                       </Button>
-                      <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        {isSubmitting ? 'Aggiungendo...' : 'Aggiungi'}
+                      <Button type="submit" className="flex-1">
+                        <Edit2 className="w-4 h-4 mr-2" />
+                        Salva Modifiche
                       </Button>
                     </div>
                   </form>

@@ -31,6 +31,21 @@ const cardVariants = {
     text: "text-white",
     logo: "text-white",
   },
+  'gradient-green': {
+    container: "bg-gradient-to-br from-green-600 to-emerald-500",
+    text: "text-white",
+    logo: "text-white",
+  },
+  'gradient-orange': {
+    container: "bg-gradient-to-br from-orange-600 to-amber-500",
+    text: "text-white",
+    logo: "text-white",
+  },
+  'gradient-pink': {
+    container: "bg-gradient-to-br from-pink-600 to-rose-500",
+    text: "text-white",
+    logo: "text-white",
+  },
 };
 
 export function CreditCard({
@@ -40,10 +55,12 @@ export function CreditCard({
   cardExpiration = "12/25",
   company = "VISA",
   width = 316,
+  height = null,
   className,
 }) {
-  // Maintain 316:190 aspect ratio
-  const height = (width / 316) * 190;
+  // Force 192px height when width is percentage, otherwise calculate proportionally
+  const isPercentage = typeof width === 'string' && width.includes('%');
+  const calculatedHeight = height || (isPercentage ? '192px' : `${(width / 320) * 192}px`);
   const styles = cardVariants[variant] || cardVariants.gradient;
 
   // Format card number with proper spacing
@@ -56,7 +73,10 @@ export function CreditCard({
         styles.container,
         className
       )}
-      style={{ width: `${width}px`, height: `${height}px` }}
+      style={{
+        width: isPercentage ? width : `${width}px`,
+        height: calculatedHeight
+      }}
     >
       {/* Decorative elements */}
       <div className="absolute inset-0 opacity-20">

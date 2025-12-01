@@ -1,4 +1,4 @@
-import { Dashboard } from './components/Dashboard'
+import { Dashboard } from './Dashboard.jsx'
 import './App.css'
 
 function App() {
