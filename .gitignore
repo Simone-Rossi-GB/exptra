@@ -12,6 +12,30 @@ dist
 dist-ssr
 *.local
 
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.production.local
+*.secret
+*.key
+credentials.json
+oauth-credentials.txt
+secrets/
+
+# PocketBase data (se hai PocketBase in locale)
+pb_data/
+pb_migrations/
+*.db
+*.db-shm
+*.db-wal
+
+# Backups
+backup/
+*.backup
+*.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

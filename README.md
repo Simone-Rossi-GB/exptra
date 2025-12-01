@@ -1,18 +1,120 @@
-# React + Vite
+# ExpenseTracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Personal expense tracking application built with React, Tauri, and PocketBase.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 💰 Track expenses with categories
+- 📊 Visualize spending with charts
+- 🔐 Multiple authentication methods (Email, Google, GitHub)
+- 🌓 Dark mode support
+- 🖥️ Desktop app (Tauri) + Web app
+- 📱 Responsive design
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- **Frontend**: React 19 + Vite
+- **Desktop**: Tauri 2
+- **Backend**: PocketBase (self-hosted)
+- **Database**: SQLite (via PocketBase)
+- **Auth**: PocketBase Auth + OAuth2 (Google, GitHub)
 
-Note: This will impact Vite dev & build performances.
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Node.js 18+ and npm
+- PocketBase server running (see backend setup)
+- OAuth credentials (for Google/GitHub login)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <your-repo-url>
+cd exptra
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Setup environment variables:
+```bash
+# Copy the example file
+cp .env.example .env.local
+
+# Edit .env.local and fill in your actual values
+# NEVER commit .env.local to Git!
+```
+
+4. Configure your OAuth credentials in `.env.local`:
+   - See [DESIGN_GUIDE.md](./DESIGN_GUIDE.md) for OAuth setup instructions
+   - Get Google Client ID/Secret from Google Cloud Console
+   - Get GitHub Client ID/Secret from GitHub Developer Settings
+
+### Development
+
+Run the development server:
+```bash
+npm run dev
+```
+
+Run Tauri desktop app:
+```bash
+npm run tauri:dev
+```
+
+### Build
+
+Build for production:
+```bash
+npm run build
+```
+
+Build Tauri app:
+```bash
+npm run tauri:build
+```
+
+## Environment Variables
+
+All environment variables must be prefixed with `VITE_` to be exposed to the frontend.
+
+Required variables (see `.env.example`):
+- `VITE_POCKETBASE_URL` - Your PocketBase server URL
+- `VITE_GOOGLE_CLIENT_ID` - Google OAuth Client ID
+- `VITE_GITHUB_CLIENT_ID` - GitHub OAuth Client ID
+
+**⚠️ SECURITY NOTE**:
+- Never commit `.env.local` or any file containing real credentials
+- All `VITE_*` variables are exposed in the frontend bundle
+- Sensitive secrets (like Client Secrets) should be handled server-side only
+
+## Database Schema
+
+See PocketBase collections:
+- `Auth` - Users with multi-provider authentication
+- `linked_auth_providers` - Track multiple auth methods per user
+- `categories` - Expense categories
+- `expenses` - Expense records
+
+For detailed schema, check the backup in `docs/` or PocketBase Admin UI.
+
+## Documentation
+
+- [DESIGN_GUIDE.md](./DESIGN_GUIDE.md) - Frontend design guidelines and resources
+- [doc.md](./doc.md) - Original project requirements
+
+## Contributing
+
+This is a personal project, but suggestions are welcome via issues.
+
+## License
+
+MIT
+
+---
+
+**Note**: This project is for personal use. OAuth credentials and database backups are not included in the repository for security reasons.
