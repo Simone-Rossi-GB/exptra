@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card.
 import { Button } from "../components/ui/button.jsx";
 import { Input } from "../components/ui/input.jsx";
 import { SelectNative } from "../components/ui/select.jsx";
+import { authService } from "@/lib/pocketBase.js";
+
 import {
   User,
   Bell,
@@ -15,14 +17,7 @@ import {
 } from "lucide-react";
 
 export function Settings() {
-  const [settings, setSettings] = useState({
-    name: 'Mario Rossi',
-    email: 'mario@email.com',
-    currency: 'EUR',
-    language: 'IT',
-    notifications: true,
-    darkMode: true,
-  });
+  const [settings, setSettings] = useState({});
 
   return (
     <AppLayout>

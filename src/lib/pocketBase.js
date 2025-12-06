@@ -1,4 +1,5 @@
 import PocketBase from 'pocketbase';
+import { waitForOAuthCallback } from './deeplink.js';
 
 // Initialize PocketBase with full URL (must include protocol)
 const pb = new PocketBase('https://exptra.ddns.net');
@@ -9,6 +10,9 @@ pb.autoCancellation(false);
 // Log PocketBase configuration
 console.log('PocketBase: Initialized with URL:', pb.baseUrl);
 console.log('PocketBase: Auth store valid:', pb.authStore.isValid);
+
+// Deep link redirect URI (configured on OAuth providers)
+const DEEP_LINK_REDIRECT_URI = 'https://exptra.ddns.net/oauth/callback.html';
 
 export const authService = {
     async login(email, password) {
@@ -35,52 +39,141 @@ export const authService = {
         try {
             console.log('authService.loginOAuthGoogle: Starting Google OAuth flow');
 
-            // Check if running in Tauri
-            const isTauri = window.__TAURI__ !== undefined;
-            console.log('authService.loginOAuthGoogle: Running in Tauri?', isTauri);
+            // Detect platform
+            const isMobile = window.Capacitor !== undefined;
+            const isDesktop = window.__TAURI__ !== undefined;
+            const isNativeApp = isMobile || isDesktop;
 
-            if (isTauri) {
-                // For Tauri, we need to handle OAuth differently
-                // Open in external browser and use a redirect URL that PocketBase can handle
-                console.log('authService.loginOAuthGoogle: Tauri detected - using external browser flow');
+            console.log('authService.loginOAuthGoogle: Platform -', { isMobile, isDesktop, isNativeApp });
 
-                // Get the OAuth URL from PocketBase
+            if (isNativeApp) {
+                // Native app flow (Capacitor or Tauri) - use deep linking
+                console.log('authService.loginOAuthGoogle: Using native deep link flow');
+
+                // Get OAuth URL from PocketBase
                 const authMethods = await pb.collection('Auth').listAuthMethods();
-                const googleProvider = authMethods.authProviders.find(p => p.name === 'google');
+
+                // Check if OAuth2 providers exist
+                if (!authMethods || !authMethods.oauth2 || !authMethods.oauth2.providers) {
+                    throw new Error('PocketBase OAuth non configurato correttamente');
+                }
+
+                const googleProvider = authMethods.oauth2.providers.find(p => p.name === 'google');
 
                 if (!googleProvider) {
                     throw new Error('Google OAuth non configurato su PocketBase');
                 }
 
-                console.log('authService.loginOAuthGoogle: Google OAuth URL:', googleProvider.authUrl);
+                // Build OAuth URL with our redirect URI
+                const oauthUrl = new URL(googleProvider.authUrl);
+                oauthUrl.searchParams.set('redirect_uri', DEEP_LINK_REDIRECT_URI);
 
-                // Open in external browser
-                if (window.__TAURI__?.shell) {
-                    await window.__TAURI__.shell.open(googleProvider.authUrl);
-                    throw new Error('Completa il login nel browser esterno, poi riprova ad accedere con email/password');
+                console.log('authService.loginOAuthGoogle: OAuth URL:', oauthUrl.toString());
+
+                // Open OAuth in system browser
+                if (isMobile) {
+                    console.log('authService.loginOAuthGoogle: Opening in mobile browser');
+                    const { Browser } = await import('@capacitor/browser');
+                    await Browser.open({
+                        url: oauthUrl.toString(),
+                        presentationStyle: 'popover'
+                    });
+                } else if (isDesktop) {
+                    console.log('authService.loginOAuthGoogle: Opening in desktop browser');
+                    await window.__TAURI__.shell.open(oauthUrl.toString());
                 }
+
+                // Wait for deep link callback with OAuth code
+                console.log('authService.loginOAuthGoogle: Waiting for OAuth callback...');
+                const { code, state } = await waitForOAuthCallback();
+
+                console.log('authService.loginOAuthGoogle: OAuth code received, exchanging for token');
+
+                // Exchange code for authentication token
+                const authData = await pb.collection('Auth').authWithOAuth2Code(
+                    googleProvider.name,
+                    code,
+                    googleProvider.codeVerifier,
+                    DEEP_LINK_REDIRECT_URI,
+                    // Additional create data for new users
+                    {
+                        emailVisibility: true
+                    }
+                );
+
+                console.log('authService.loginOAuthGoogle: OAuth successful', authData.record.id);
+
+                // Close browser on mobile
+                if (isMobile) {
+                    try {
+                        const { Browser } = await import('@capacitor/browser');
+                        await Browser.close();
+                    } catch (err) {
+                        console.warn('authService.loginOAuthGoogle: Failed to close browser (non-critical)', err);
+                    }
+                }
+
+                // Update last login information
+                try {
+                    await pb.collection('Auth').update(authData.record.id, {
+                        lastLogin: new Date().toISOString(),
+                        lastLoginMethod: 'google'
+                    });
+                } catch (updateError) {
+                    console.warn('authService.loginOAuthGoogle: Failed to update last login (non-critical)', updateError);
+                }
+
+                console.log('authService.loginOAuthGoogle: Login completed successfully');
+                return authData;
             }
 
-            // For web browser (non-Tauri), use standard OAuth flow
-            const authData = await pb.collection('Auth').authWithOAuth2({
-                provider: 'google'
-            });
+            // Web browser fallback - manual redirect flow
+            console.log('authService.loginOAuthGoogle: Using manual redirect flow');
 
-            console.log('authService.loginOAuthGoogle: OAuth successful', authData.record.id);
-            console.log('authService.loginOAuthGoogle: Is new user?', authData.meta?.isNew);
-
-            // Update last login information
             try {
-                await pb.collection('Auth').update(authData.record.id, {
-                    lastLogin: new Date().toISOString(),
-                    lastLoginMethod: 'google'
-                });
-            } catch (updateError) {
-                console.warn('authService.loginOAuthGoogle: Failed to update last login (non-critical)', updateError);
-            }
+                // Get OAuth URL from PocketBase
+                const authMethods = await pb.collection('Auth').listAuthMethods();
 
-            console.log('authService.loginOAuthGoogle: Login completed successfully');
-            return authData;
+                if (!authMethods || !authMethods.oauth2 || !authMethods.oauth2.providers) {
+                    throw new Error('PocketBase OAuth non configurato correttamente');
+                }
+
+                const googleProvider = authMethods.oauth2.providers.find(p => p.name === 'google');
+
+                if (!googleProvider) {
+                    throw new Error('Google OAuth non configurato su PocketBase');
+                }
+
+                console.log('authService.loginOAuthGoogle: Provider info:', googleProvider);
+                console.log('authService.loginOAuthGoogle: Auth URL:', googleProvider.authUrl);
+
+                // Store code verifier and state for later
+                localStorage.setItem('pb_oauth_provider', 'google');
+                localStorage.setItem('pb_oauth_code_verifier', googleProvider.codeVerifier);
+                localStorage.setItem('pb_oauth_state', googleProvider.state);
+
+                // Fix the redirect_uri to point to our React app, not PocketBase
+                const redirectUri = `${window.location.origin}/oauth-callback`;
+                let authUrl = googleProvider.authUrl;
+
+                // If redirect_uri is empty in the URL, add it
+                if (authUrl.includes('redirect_uri=&') || authUrl.endsWith('redirect_uri=')) {
+                    authUrl = authUrl.replace(/redirect_uri=(&|$)/, `redirect_uri=${encodeURIComponent(redirectUri)}$1`);
+                }
+
+                console.log('authService.loginOAuthGoogle: Fixed Auth URL:', authUrl);
+                console.log('authService.loginOAuthGoogle: Redirect URI:', redirectUri);
+
+                // Redirect to OAuth provider (Google will redirect back to our React app)
+                console.log('authService.loginOAuthGoogle: Redirecting to Google...');
+                window.location.href = authUrl;
+
+                // Never executes (page redirects)
+                return new Promise(() => {});
+            } catch (webError) {
+                console.error('authService.loginOAuthGoogle: Web OAuth failed:', webError);
+                throw webError;
+            }
         } catch (e) {
             console.error('authService.loginOAuthGoogle: Error details:', {
                 message: e.message,
@@ -96,51 +189,141 @@ export const authService = {
         try {
             console.log('authService.loginOAuthGithub: Starting GitHub OAuth flow');
 
-            // Check if running in Tauri
-            const isTauri = window.__TAURI__ !== undefined;
-            console.log('authService.loginOAuthGithub: Running in Tauri?', isTauri);
+            // Detect platform
+            const isMobile = window.Capacitor !== undefined;
+            const isDesktop = window.__TAURI__ !== undefined;
+            const isNativeApp = isMobile || isDesktop;
 
-            if (isTauri) {
-                // For Tauri, we need to handle OAuth differently
-                console.log('authService.loginOAuthGithub: Tauri detected - using external browser flow');
+            console.log('authService.loginOAuthGithub: Platform -', { isMobile, isDesktop, isNativeApp });
 
-                // Get the OAuth URL from PocketBase
+            if (isNativeApp) {
+                // Native app flow (Capacitor or Tauri) - use deep linking
+                console.log('authService.loginOAuthGithub: Using native deep link flow');
+
+                // Get OAuth URL from PocketBase
                 const authMethods = await pb.collection('Auth').listAuthMethods();
-                const githubProvider = authMethods.authProviders.find(p => p.name === 'github');
+
+                // Check if OAuth2 providers exist
+                if (!authMethods || !authMethods.oauth2 || !authMethods.oauth2.providers) {
+                    throw new Error('PocketBase OAuth non configurato correttamente');
+                }
+
+                const githubProvider = authMethods.oauth2.providers.find(p => p.name === 'github');
 
                 if (!githubProvider) {
                     throw new Error('GitHub OAuth non configurato su PocketBase');
                 }
 
-                console.log('authService.loginOAuthGithub: GitHub OAuth URL:', githubProvider.authUrl);
+                // Build OAuth URL with our redirect URI
+                const oauthUrl = new URL(githubProvider.authUrl);
+                oauthUrl.searchParams.set('redirect_uri', DEEP_LINK_REDIRECT_URI);
 
-                // Open in external browser
-                if (window.__TAURI__?.shell) {
-                    await window.__TAURI__.shell.open(githubProvider.authUrl);
-                    throw new Error('Completa il login nel browser esterno, poi riprova ad accedere con email/password');
+                console.log('authService.loginOAuthGithub: OAuth URL:', oauthUrl.toString());
+
+                // Open OAuth in system browser
+                if (isMobile) {
+                    console.log('authService.loginOAuthGithub: Opening in mobile browser');
+                    const { Browser } = await import('@capacitor/browser');
+                    await Browser.open({
+                        url: oauthUrl.toString(),
+                        presentationStyle: 'popover'
+                    });
+                } else if (isDesktop) {
+                    console.log('authService.loginOAuthGithub: Opening in desktop browser');
+                    await window.__TAURI__.shell.open(oauthUrl.toString());
                 }
+
+                // Wait for deep link callback with OAuth code
+                console.log('authService.loginOAuthGithub: Waiting for OAuth callback...');
+                const { code, state } = await waitForOAuthCallback();
+
+                console.log('authService.loginOAuthGithub: OAuth code received, exchanging for token');
+
+                // Exchange code for authentication token
+                const authData = await pb.collection('Auth').authWithOAuth2Code(
+                    githubProvider.name,
+                    code,
+                    githubProvider.codeVerifier,
+                    DEEP_LINK_REDIRECT_URI,
+                    // Additional create data for new users
+                    {
+                        emailVisibility: true
+                    }
+                );
+
+                console.log('authService.loginOAuthGithub: OAuth successful', authData.record.id);
+
+                // Close browser on mobile
+                if (isMobile) {
+                    try {
+                        const { Browser } = await import('@capacitor/browser');
+                        await Browser.close();
+                    } catch (err) {
+                        console.warn('authService.loginOAuthGithub: Failed to close browser (non-critical)', err);
+                    }
+                }
+
+                // Update last login information
+                try {
+                    await pb.collection('Auth').update(authData.record.id, {
+                        lastLogin: new Date().toISOString(),
+                        lastLoginMethod: 'github'
+                    });
+                } catch (updateError) {
+                    console.warn('authService.loginOAuthGithub: Failed to update last login (non-critical)', updateError);
+                }
+
+                console.log('authService.loginOAuthGithub: Login completed successfully');
+                return authData;
             }
 
-            // For web browser (non-Tauri), use standard OAuth flow
-            const authData = await pb.collection('Auth').authWithOAuth2({
-                provider: 'github'
-            });
+            // Web browser fallback - manual redirect flow
+            console.log('authService.loginOAuthGithub: Using manual redirect flow');
 
-            console.log('authService.loginOAuthGithub: OAuth successful', authData.record.id);
-            console.log('authService.loginOAuthGithub: Is new user?', authData.meta?.isNew);
-
-            // Update last login information
             try {
-                await pb.collection('Auth').update(authData.record.id, {
-                    lastLogin: new Date().toISOString(),
-                    lastLoginMethod: 'github'
-                });
-            } catch (updateError) {
-                console.warn('authService.loginOAuthGithub: Failed to update last login (non-critical)', updateError);
-            }
+                // Get OAuth URL from PocketBase
+                const authMethods = await pb.collection('Auth').listAuthMethods();
 
-            console.log('authService.loginOAuthGithub: Login completed successfully');
-            return authData;
+                if (!authMethods || !authMethods.oauth2 || !authMethods.oauth2.providers) {
+                    throw new Error('PocketBase OAuth non configurato correttamente');
+                }
+
+                const githubProvider = authMethods.oauth2.providers.find(p => p.name === 'github');
+
+                if (!githubProvider) {
+                    throw new Error('GitHub OAuth non configurato su PocketBase');
+                }
+
+                console.log('authService.loginOAuthGithub: Provider info:', githubProvider);
+                console.log('authService.loginOAuthGithub: Auth URL:', githubProvider.authUrl);
+
+                // Store code verifier and state for later
+                localStorage.setItem('pb_oauth_provider', 'github');
+                localStorage.setItem('pb_oauth_code_verifier', githubProvider.codeVerifier);
+                localStorage.setItem('pb_oauth_state', githubProvider.state);
+
+                // Fix the redirect_uri to point to our React app, not PocketBase
+                const redirectUri = `${window.location.origin}/oauth-callback`;
+                let authUrl = githubProvider.authUrl;
+
+                // If redirect_uri is empty in the URL, add it
+                if (authUrl.includes('redirect_uri=&') || authUrl.endsWith('redirect_uri=')) {
+                    authUrl = authUrl.replace(/redirect_uri=(&|$)/, `redirect_uri=${encodeURIComponent(redirectUri)}$1`);
+                }
+
+                console.log('authService.loginOAuthGithub: Fixed Auth URL:', authUrl);
+                console.log('authService.loginOAuthGithub: Redirect URI:', redirectUri);
+
+                // Redirect to OAuth provider (GitHub will redirect back to our React app)
+                console.log('authService.loginOAuthGithub: Redirecting to GitHub...');
+                window.location.href = authUrl;
+
+                // Never executes (page redirects)
+                return new Promise(() => {});
+            } catch (webError) {
+                console.error('authService.loginOAuthGithub: Web OAuth failed:', webError);
+                throw webError;
+            }
         } catch (e) {
             console.error('authService.loginOAuthGithub: Error details:', {
                 message: e.message,

@@ -12,10 +12,17 @@ import { Wallet } from './Wallet.jsx';
 import { Settings } from './Settings.jsx';
 import { Login } from './Login.jsx';
 import { Signup } from './Signup.jsx';
+import { OAuthCallback } from './OAuthCallback.jsx';
 
 // Import authentication context
 import { AuthProvider, useAuth } from '../contexts/AuthContext.jsx';
 import { ToastProvider } from '../components/ui/toast.jsx';
+
+// Import and setup deep link handler for OAuth callbacks
+import { setupDeepLinkHandler } from '../lib/deeplink.js';
+
+// Initialize deep link handler on app startup (before rendering)
+setupDeepLinkHandler();
 
 /**
  * ProtectedRoute - Wrapper component that protects routes requiring authentication
@@ -99,6 +106,9 @@ createRoot(document.getElementById('root')).render(
               </PublicRoute>
             }
           />
+
+          {/* OAuth Callback - Public route for handling OAuth redirects */}
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
 
           {/* Protected Routes - Require authentication */}
           <Route

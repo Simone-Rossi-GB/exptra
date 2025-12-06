@@ -1,5 +1,10 @@
 {
   "appId": "com.exptra.app",
   "appName": "exptra",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "CapacitorDeeplinks": {
+      "customScheme": "exptra"
+    }
+  }
 }
