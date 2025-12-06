@@ -66,7 +66,9 @@
         const error = urlParams.get('error');
         const error_description = urlParams.get('error_description');
 
-        console.log('OAuth Callback:', { code, state, error, error_description });
+        console.log('OAuth Callback - Full URL:', window.location.href);
+        console.log('OAuth Callback - Parameters:', { code, state, error, error_description });
+        console.log('OAuth Callback - User Agent:', navigator.userAgent);
 
         // Handle OAuth error
         if (error) {
@@ -86,30 +88,47 @@
                 console.log('Redirecting to deep link (error):', deepLink);
                 window.location.href = deepLink;
             }, 2000);
-
-            return;
-        }
-
-        // Handle successful OAuth callback
-        if (code) {
+        } else if (code) {
+            // Handle successful OAuth callback
             console.log('OAuth successful, redirecting to app with code');
 
-            // Build deep link with OAuth code and state
-            const deepLink = `exptra://auth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
+            // Detect if we're on mobile (try deep link) or web (redirect to web app)
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-            console.log('Redirecting to deep link:', deepLink);
+            if (isMobile) {
+                // Mobile: use deep link
+                const deepLink = `exptra://auth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
+                console.log('Mobile detected, redirecting to deep link:', deepLink);
 
-            // Immediate redirect
-            window.location.href = deepLink;
-
-            // Fallback: try again after 500ms
-            setTimeout(() => {
-                console.log('Fallback redirect attempt');
+                // Immediate redirect
                 window.location.href = deepLink;
-            }, 500);
 
-            // Update message
-            document.getElementById('message').textContent = 'Autenticazione riuscita! Reindirizzamento all\'app...';
+                // Fallback: try again after 500ms
+                setTimeout(() => {
+                    console.log('Fallback redirect attempt');
+                    window.location.href = deepLink;
+                }, 500);
+
+                document.getElementById('message').textContent = 'Autenticazione riuscita! Reindirizzamento all\'app...';
+            } else {
+                // Web: redirect to React app (localhost or production)
+                // Since we're always on exptra.ddns.net/oauth/callback.html,
+                // we need to check where the user came from (stored in referrer or use localhost as default for dev)
+                const webAppUrl = 'http://localhost:5173/oauth-callback';
+
+                const redirectUrl = `${webAppUrl}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
+                console.log('Web detected, redirecting to:', redirectUrl);
+                console.log('Attempting redirect in 1 second...');
+
+                // Show the redirect URL to user for debugging
+                document.getElementById('message').innerHTML = `Autenticazione riuscita!<br>Reindirizzamento a: <a href="${redirectUrl}">${redirectUrl}</a>`;
+
+                // Immediate redirect
+                setTimeout(() => {
+                    console.log('Executing redirect now...');
+                    window.location.href = redirectUrl;
+                }, 1000);
+            }
         } else {
             // No code or error - invalid callback
             console.error('Invalid OAuth callback: no code or error');

@@ -152,8 +152,8 @@ export const authService = {
                 localStorage.setItem('pb_oauth_code_verifier', googleProvider.codeVerifier);
                 localStorage.setItem('pb_oauth_state', googleProvider.state);
 
-                // Fix the redirect_uri to point to our React app, not PocketBase
-                const redirectUri = `${window.location.origin}/oauth-callback`;
+                // Use the same redirect URI for both web and mobile (deep link proxy)
+                const redirectUri = DEEP_LINK_REDIRECT_URI;
                 let authUrl = googleProvider.authUrl;
 
                 // If redirect_uri is empty in the URL, add it
@@ -302,8 +302,8 @@ export const authService = {
                 localStorage.setItem('pb_oauth_code_verifier', githubProvider.codeVerifier);
                 localStorage.setItem('pb_oauth_state', githubProvider.state);
 
-                // Fix the redirect_uri to point to our React app, not PocketBase
-                const redirectUri = `${window.location.origin}/oauth-callback`;
+                // Use the same redirect URI for both web and mobile (deep link proxy)
+                const redirectUri = DEEP_LINK_REDIRECT_URI;
                 let authUrl = githubProvider.authUrl;
 
                 // If redirect_uri is empty in the URL, add it

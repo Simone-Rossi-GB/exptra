@@ -70,7 +70,8 @@ export function OAuthCallback() {
       console.log('OAuthCallback: Exchanging code for token with PocketBase');
 
       // Exchange code for token with PocketBase (use same redirect URI as initial request)
-      const redirectUri = `${window.location.origin}/oauth-callback`;
+      // IMPORTANT: Must match the redirect_uri used in the initial OAuth request
+      const redirectUri = 'https://exptra.ddns.net/oauth/callback.html';
       console.log('OAuthCallback: Using redirect URI:', redirectUri);
 
       const authData = await pb.collection('Auth').authWithOAuth2Code(
