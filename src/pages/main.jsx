@@ -17,11 +17,16 @@ import { OAuthCallback } from './OAuthCallback.jsx';
 // Import authentication context
 import { AuthProvider, useAuth } from '../contexts/AuthContext.jsx';
 import { ToastProvider } from '../components/ui/toast.jsx';
+import { I18nProvider } from '../contexts/I18nContext.jsx';
 
 // Import and setup deep link handler for OAuth callbacks
 import { setupDeepLinkHandler } from '../lib/deeplink.js';
+import { initializeTheme } from '../utils/theme.js';
+import { initializeExchangeRates } from '../utils/currency.js';
 
-// Initialize deep link handler on app startup (before rendering)
+// Initialize theme, exchange rates and deep link handler on app startup (before rendering)
+initializeTheme();
+initializeExchangeRates(); // Fetch exchange rates from API
 setupDeepLinkHandler();
 
 /**
@@ -87,8 +92,9 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <ToastProvider>
-          <Routes>
+        <I18nProvider>
+          <ToastProvider>
+            <Routes>
           {/* Public Routes - Login and Signup */}
           <Route
             path="/login"
@@ -163,8 +169,9 @@ createRoot(document.getElementById('root')).render(
           {/* Default Routes */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </ToastProvider>
+            </Routes>
+          </ToastProvider>
+        </I18nProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

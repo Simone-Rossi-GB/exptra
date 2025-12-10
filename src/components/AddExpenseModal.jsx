@@ -159,7 +159,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
               className="w-full max-w-2xl max-h-[90vh] overflow-hidden"
             >
               <Card className="shadow-2xl">
-                <CardHeader className="border-b border-gray-800/50">
+                <CardHeader className="border-b border-gray-200 dark:border-gray-800/50">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
                       <Plus className="w-5 h-5 text-primary" />
@@ -167,7 +167,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                     </CardTitle>
                     <button
                       onClick={onClose}
-                      className="p-2 rounded-lg hover:bg-surface-light transition-colors text-gray-400 hover:text-white"
+                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-light transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -178,7 +178,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                   <form onSubmit={handleSubmit} className="space-y-5 mt-6">
                     {/* Title */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Titolo *
                       </label>
                       <Input
@@ -194,7 +194,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
 
                     {/* Description */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Descrizione
                       </label>
                       <Input
@@ -217,7 +217,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                       />
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Valuta
                         </label>
                         <SelectNative
@@ -232,7 +232,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                       </div>
 
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-300">
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           Importo *
                         </label>
                         <Input
@@ -250,7 +250,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
 
                     {/* Metodo di Pagamento */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Metodo di Pagamento *
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -264,7 +264,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                               className={`p-3 rounded-lg border-2 transition-all text-sm font-medium ${
                                 isSelected
                                   ? 'border-primary bg-primary/10 text-primary'
-                                  : 'border-gray-700 hover:border-gray-600 text-gray-400'
+                                  : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 text-gray-700 dark:text-gray-400'
                               }`}
                             >
                               {method.label}
@@ -276,7 +276,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
 
                     {/* Categoria */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Categoria *
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-1">
@@ -292,7 +292,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                               className={`p-3 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
                                 isSelected
                                   ? 'border-primary bg-primary/10'
-                                  : 'border-gray-700 hover:border-gray-600'
+                                  : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                               }`}
                               style={{
                                 color: isSelected ? cat.color : '#9ca3af',
@@ -309,7 +309,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
 
                     {/* Note */}
                     <div className="space-y-2">
-                      <label className="text-sm font-medium text-gray-300">
+                      <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Note
                       </label>
                       <textarea
@@ -319,7 +319,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                         placeholder="Note aggiuntive (opzionale)"
                         maxLength={500}
                         rows={3}
-                        className="w-full px-3 py-2 bg-surface border border-gray-700 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                        className="w-full px-3 py-2 bg-white dark:bg-surface border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                       />
                     </div>
 
@@ -332,9 +332,9 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                           name="isRecurring"
                           checked={formData.isRecurring}
                           onChange={handleChange}
-                          className="w-4 h-4 rounded border-gray-700 bg-surface text-primary focus:ring-2 focus:ring-primary"
+                          className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-surface text-primary focus:ring-2 focus:ring-primary"
                         />
-                        <label htmlFor="isRecurring" className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                        <label htmlFor="isRecurring" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
                           <Repeat className="w-4 h-4" />
                           Spesa ricorrente
                         </label>
@@ -357,7 +357,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                     </div>
 
                     {/* Bottoni */}
-                    <div className="flex gap-3 pt-4 sticky bottom-0 bg-surface/95 backdrop-blur-sm pb-2">
+                    <div className="flex gap-3 pt-4 sticky bottom-0 bg-white/95 dark:bg-surface/95 backdrop-blur-sm pb-2">
                       <Button
                         type="button"
                         variant="secondary"

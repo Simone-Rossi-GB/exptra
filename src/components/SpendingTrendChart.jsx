@@ -123,9 +123,9 @@ export function SpendingTrendChart({ expenses }) {
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-surface/95 backdrop-blur-xl border border-gray-700 rounded-lg p-3 shadow-xl">
-          <p className="text-xs text-gray-400 mb-1">{payload[0].payload.dateLabel}</p>
-          <p className="text-lg font-bold text-white">
+        <div className="bg-white/95 dark:bg-surface/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-xl">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{payload[0].payload.dateLabel}</p>
+          <p className="text-lg font-bold text-gray-900 dark:text-white">
             €{payload[0].value.toFixed(2)}
           </p>
         </div>
@@ -139,14 +139,14 @@ export function SpendingTrendChart({ expenses }) {
       <CardHeader className="space-y-4 pb-4">
         <div className="flex flex-row items-start justify-between space-y-0">
           <div>
-            <CardTitle className="text-xl text-white flex items-center gap-2 mb-1">
+            <CardTitle className="text-xl flex items-center gap-2 mb-1">
               <TrendingUp className="w-5 h-5 text-primary" />
               Andamento Spese
             </CardTitle>
-            <p className="text-sm text-gray-500">
-              Totale: <span className="text-white font-semibold">€{stats.total.toFixed(2)}</span>
+            <p className="text-sm text-gray-600 dark:text-gray-500">
+              Totale: <span className="text-gray-900 dark:text-white font-semibold">€{stats.total.toFixed(2)}</span>
               {' • '}
-              Media: <span className="text-white font-semibold">€{stats.avg.toFixed(2)}</span>
+              Media: <span className="text-gray-900 dark:text-white font-semibold">€{stats.avg.toFixed(2)}</span>
             </p>
           </div>
           <div className="flex gap-2 flex-wrap justify-end">
@@ -167,7 +167,7 @@ export function SpendingTrendChart({ expenses }) {
         {/* Date picker for day view */}
         {timeRange === 'day' && (
           <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-gray-400" />
+            <CalendarIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             <div className="w-64">
               <CalendarDatePicker
                 value={selectedDate}
@@ -213,7 +213,7 @@ export function SpendingTrendChart({ expenses }) {
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorAmount)"
-                activeDot={{ r: 6, fill: '#8b5cf6', stroke: '#fff', strokeWidth: 2 }}
+                activeDot={false}
               />
             </AreaChart>
           </ResponsiveContainer>

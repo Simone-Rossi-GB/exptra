@@ -48,12 +48,12 @@ export function CategoryBreakdownChart({ expenses, categories }) {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-surface/95 backdrop-blur-xl border border-gray-700 rounded-lg p-3 shadow-xl">
-          <p className="text-sm font-medium text-white mb-1">{data.name}</p>
+        <div className="bg-white/95 dark:bg-surface/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700 rounded-lg p-3 shadow-xl">
+          <p className="text-sm font-medium text-gray-900 dark:text-white mb-1">{data.name}</p>
           <p className="text-lg font-bold" style={{ color: data.color }}>
             €{data.amount.toFixed(2)}
           </p>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             {data.percentage}% del totale
           </p>
         </div>
@@ -94,10 +94,10 @@ export function CategoryBreakdownChart({ expenses, categories }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl text-white">Spese per Categoria</CardTitle>
+          <CardTitle className="text-xl">Spese per Categoria</CardTitle>
         </CardHeader>
         <CardContent className="h-80 flex items-center justify-center">
-          <p className="text-gray-500">Nessun dato disponibile</p>
+          <p className="text-gray-600 dark:text-gray-500">Nessun dato disponibile</p>
         </CardContent>
       </Card>
     );
@@ -106,7 +106,7 @@ export function CategoryBreakdownChart({ expenses, categories }) {
   return (
     <Card className="select-none">
       <CardHeader>
-        <CardTitle className="text-xl text-white flex items-center gap-2">
+        <CardTitle className="text-xl flex items-center gap-2">
           <PieChart className="w-5 h-5 text-primary" />
           Spese per Categoria
         </CardTitle>
@@ -138,6 +138,7 @@ export function CategoryBreakdownChart({ expenses, categories }) {
                 dataKey="amount"
                 shape={<CustomBar />}
                 maxBarSize={60}
+                activeBar={false}
               >
                 {chartData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -155,8 +156,8 @@ export function CategoryBreakdownChart({ expenses, categories }) {
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-xs text-gray-400 truncate">{item.name}</span>
-              <span className="text-xs text-gray-500 ml-auto">{item.percentage}%</span>
+              <span className="text-xs text-gray-700 dark:text-gray-400 truncate">{item.name}</span>
+              <span className="text-xs text-gray-600 dark:text-gray-500 ml-auto">{item.percentage}%</span>
             </div>
           ))}
         </div>

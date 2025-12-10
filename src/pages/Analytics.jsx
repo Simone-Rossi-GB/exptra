@@ -6,11 +6,13 @@ import { SpendingTrendChart } from "../components/SpendingTrendChart.jsx";
 import { CategoryBreakdownChart } from "../components/CategoryBreakdownChart.jsx";
 import { PieChart, TrendingUp, Calendar } from "lucide-react";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { useCurrency } from "../hooks/useCurrency.js";
 
 export function Analytics() {
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { format: formatCurrency } = useCurrency();
 
   useEffect(() => {
     console.log('Analytics: Fetching data');
@@ -123,7 +125,7 @@ export function Analytics() {
                 </div>
               </div>
               <h3 className="text-3xl font-bold text-white tracking-tight">
-                €{stats.total.toFixed(2)}
+                {formatCurrency(stats.total)}
               </h3>
             </CardContent>
           </Card>
@@ -139,7 +141,7 @@ export function Analytics() {
                 </div>
               </div>
               <h3 className="text-3xl font-bold text-white tracking-tight">
-                €{stats.thisMonth.toFixed(2)}
+                {formatCurrency(stats.thisMonth)}
               </h3>
               <div className="flex items-center gap-2 mt-2">
                 <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold ${
@@ -170,7 +172,7 @@ export function Analytics() {
                 </div>
               </div>
               <h3 className="text-3xl font-bold text-white tracking-tight">
-                €{stats.lastMonth.toFixed(2)}
+                {formatCurrency(stats.lastMonth)}
               </h3>
             </CardContent>
           </Card>
@@ -190,7 +192,7 @@ export function Analytics() {
                   <h3 className="text-2xl font-bold text-white tracking-tight">
                     {stats.topCategory.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">€{stats.topCategoryAmount.toFixed(2)}</p>
+                  <p className="text-sm text-gray-500 mt-1">{formatCurrency(stats.topCategoryAmount)}</p>
                 </>
               )}
             </CardContent>
@@ -202,7 +204,7 @@ export function Analytics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryBreakdownChart expenses={expenses} categories={categories} />
 
-          <Card className="select-none">
+          <Card className="select-none pointer-events-none">
             <CardHeader>
               <CardTitle className="text-xl text-white flex items-center gap-2">
                 <PieChart className="w-5 h-5 text-primary" />
@@ -210,9 +212,9 @@ export function Analytics() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col">
-              <div className="w-full h-80 outline-none [&_svg]:outline-none [&_svg]:focus:outline-none">
+              <div className="w-full h-80 outline-none [&_svg]:outline-none [&_svg]:focus:outline-none [&_path]:outline-none [&_.recharts-sector]:outline-none">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPie style={{ outline: 'none' }}>
+                  <RechartsPie style={{ outline: 'none', pointerEvents: 'none' }}>
                     <Pie
                       data={categoryPieData}
                       cx="50%"
@@ -222,21 +224,12 @@ export function Analytics() {
                       paddingAngle={2}
                       dataKey="value"
                       stroke="none"
+                      isAnimationActive={false}
                     >
                       {categoryPieData.map((entry, index) => (
-                        <Cell key={'cell-' + index} fill={entry.color} />
+                        <Cell key={'cell-' + index} fill={entry.color} style={{ outline: 'none' }} />
                       ))}
                     </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'rgba(26, 26, 36, 0.95)',
-                        backdropFilter: 'blur(12px)',
-                        border: '1px solid #374151',
-                        borderRadius: '12px',
-                        padding: '12px'
-                      }}
-                      formatter={(value, name, props) => ['€' + value.toFixed(2), props.payload.name]}
-                    />
                   </RechartsPie>
                 </ResponsiveContainer>
               </div>
@@ -251,7 +244,7 @@ export function Analytics() {
                     />
                     <span className="text-xs text-gray-400 truncate">{item.name}</span>
                     <span className="text-xs text-gray-500 ml-auto">
-                      €{item.value.toFixed(0)}
+                      {formatCurrency(item.value, 'EUR', 0)}
                     </span>
                   </div>
                 ))}

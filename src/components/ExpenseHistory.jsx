@@ -5,6 +5,7 @@ import { History, Filter, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { it } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCurrency } from "../hooks/useCurrency.js";
 import {
   ShoppingBag,
   Coffee,
@@ -50,6 +51,7 @@ export function ExpenseHistory({ expenses, categories, onEditExpense, onDeleteEx
   const [limit, setLimit] = useState(10);
   const [openMenuId, setOpenMenuId] = useState(null);
   const menuRef = useRef(null);
+  const { format: formatCurrency } = useCurrency();
 
   // Chiudi menu quando clicchi fuori
   useEffect(() => {
@@ -91,7 +93,7 @@ export function ExpenseHistory({ expenses, categories, onEditExpense, onDeleteEx
   return (
     <Card className="lg:col-span-1 flex flex-col h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 flex-shrink-0">
-        <CardTitle className="text-xl text-white flex items-center gap-2">
+        <CardTitle className="text-xl flex items-center gap-2">
           <History className="w-5 h-5 text-primary" />
           Transazioni Recenti
         </CardTitle>
@@ -100,21 +102,21 @@ export function ExpenseHistory({ expenses, categories, onEditExpense, onDeleteEx
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="appearance-none bg-surface border border-gray-700 rounded-lg px-3 py-1.5 pr-8 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary"
+              className="appearance-none bg-white dark:bg-surface border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-1.5 pr-8 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="all">Tutte</option>
               {categories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
               ))}
             </select>
-            <Filter className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <Filter className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 dark:text-gray-400 pointer-events-none" />
           </div>
         )}
       </CardHeader>
       <CardContent className="flex-1 overflow-y-auto">
         <div className="space-y-2">
           {filteredExpenses.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-600 dark:text-gray-500">
               Nessuna transazione
             </div>
           ) : (
@@ -129,7 +131,7 @@ export function ExpenseHistory({ expenses, categories, onEditExpense, onDeleteEx
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="relative flex items-center gap-3 p-3 rounded-lg hover:bg-surface/50 transition-colors group"
+                    className="relative flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-surface/50 transition-colors group"
                   >
                     {/* Icon */}
                     <div
@@ -144,20 +146,20 @@ export function ExpenseHistory({ expenses, categories, onEditExpense, onDeleteEx
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white truncate">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {expense.title || expense.description || category.name || 'Spesa'}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-600 dark:text-gray-500">
                         {format(new Date(expense.date), 'dd MMM yyyy', { locale: it })}
                       </p>
                     </div>
 
                     {/* Amount */}
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-red-400">
-                        -€{expense.amount.toFixed(2)}
+                      <p className="text-sm font-semibold text-red-500 dark:text-red-400">
+                        -{formatCurrency(expense.amount)}
                       </p>
-                      <p className="text-xs text-gray-500">{category.name}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-500">{category.name}</p>
                     </div>
 
                   </motion.div>

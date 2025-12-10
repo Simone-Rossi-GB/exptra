@@ -2,8 +2,9 @@ import { cn } from "@/lib/utils";
 
 const buttonVariants = {
   default: "bg-primary hover:bg-primary-light text-white shadow-lg shadow-primary/20",
-  secondary: "bg-surface-light hover:bg-gray-700 text-white border border-gray-700",
-  ghost: "hover:bg-surface-light text-gray-300 hover:text-white",
+  outline: "border border-gray-300 dark:border-gray-700 bg-transparent hover:bg-gray-100 dark:hover:bg-surface-light text-gray-900 dark:text-white",
+  secondary: "bg-gray-200 dark:bg-surface-light hover:bg-gray-300 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-700",
+  ghost: "hover:bg-gray-100 dark:hover:bg-surface-light text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white",
   danger: "bg-red-600 hover:bg-red-700 text-white",
   success: "bg-accent-green hover:bg-emerald-600 text-white",
 };

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, CreditCard as CreditCardIcon, Check } from "lucide-react";
@@ -5,6 +6,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CreditCard as CreditCardComponent } from "./CreditCard.jsx";
 
 export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId, onSelectCard }) {
+  const [tempSelectedCardId, setTempSelectedCardId] = useState(selectedCardId);
+
+  // Update temp selection when modal opens with new selectedCardId
+  useEffect(() => {
+    if (isOpen) {
+      setTempSelectedCardId(selectedCardId);
+    }
+  }, [isOpen, selectedCardId]);
+
+  const handleConfirm = () => {
+    if (tempSelectedCardId) {
+      onSelectCard(tempSelectedCardId);
+      onClose();
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -58,13 +75,13 @@ export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId,
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {cards.map((card) => {
-                          const isSelected = selectedCardId === card.id;
+                          const isSelected = tempSelectedCardId === card.id;
                           return (
                             <motion.div
                               key={card.id}
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
-                              onClick={() => onSelectCard(card.id)}
+                              onClick={() => setTempSelectedCardId(card.id)}
                               className={`relative cursor-pointer rounded-2xl transition-all ${
                                 isSelected ? 'ring-4 ring-primary' : 'hover:ring-2 hover:ring-gray-700'
                               }`}
@@ -97,13 +114,9 @@ export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId,
                           Annulla
                         </Button>
                         <Button
-                          onClick={() => {
-                            if (selectedCardId) {
-                              onClose();
-                            }
-                          }}
+                          onClick={handleConfirm}
                           className="flex-1"
-                          disabled={!selectedCardId}
+                          disabled={!tempSelectedCardId}
                         >
                           Conferma
                         </Button>

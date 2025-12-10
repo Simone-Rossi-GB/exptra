@@ -67,6 +67,8 @@ export const authService = {
                 // Build OAuth URL with our redirect URI
                 const oauthUrl = new URL(googleProvider.authUrl);
                 oauthUrl.searchParams.set('redirect_uri', DEEP_LINK_REDIRECT_URI);
+                // Force account selection every time
+                oauthUrl.searchParams.set('prompt', 'select_account');
 
                 console.log('authService.loginOAuthGoogle: OAuth URL:', oauthUrl.toString());
 
@@ -161,6 +163,11 @@ export const authService = {
                     authUrl = authUrl.replace(/redirect_uri=(&|$)/, `redirect_uri=${encodeURIComponent(redirectUri)}$1`);
                 }
 
+                // Force account selection every time for Google
+                const authUrlObj = new URL(authUrl);
+                authUrlObj.searchParams.set('prompt', 'select_account');
+                authUrl = authUrlObj.toString();
+
                 console.log('authService.loginOAuthGoogle: Fixed Auth URL:', authUrl);
                 console.log('authService.loginOAuthGoogle: Redirect URI:', redirectUri);
 
@@ -217,6 +224,9 @@ export const authService = {
                 // Build OAuth URL with our redirect URI
                 const oauthUrl = new URL(githubProvider.authUrl);
                 oauthUrl.searchParams.set('redirect_uri', DEEP_LINK_REDIRECT_URI);
+                // GitHub doesn't support forcing account selection like Google
+                // The only way is to logout from GitHub first, which we can't control
+                // Users will need to manually logout from GitHub if they want to switch accounts
 
                 console.log('authService.loginOAuthGithub: OAuth URL:', oauthUrl.toString());
 
@@ -414,6 +424,37 @@ export const authService = {
     }
 };
 
+export const preferencesService = {
+
+    /**
+     * Update an existing preference
+     * @param {string} id - user ID
+     * @param {Object} data - Updated preferences data
+     * @returns {Promise<Object>} Updated preferences record
+     */
+    async update(id, preferences){
+        try {
+
+        } catch (e) {
+            console.error('preferencesService.update: Error', e);
+            throw e;
+        }
+    },
+
+    /**
+     * Get preferences for the authenticated user
+     * @returns {Promise<Array>} Array of expense records with expanded category
+     */
+    async get() {
+        try {
+
+        } catch (e) {
+            console.error('preferencesService.get: Error', e);
+            throw e;
+        }
+    }
+}
+
 export const expensesService = {
     /**
      * Get all expenses for the authenticated user
@@ -540,6 +581,108 @@ export const expensesService = {
             return true;
         } catch (e) {
             console.error('expensesService.delete: Error', e);
+            throw e;
+        }
+    }
+};
+
+/**
+ * CRUD structure written but only getAll (aka select)
+ * is used. Notifications is needed for the new functionality 'people's group'
+ */
+export const notificationsService = {
+    /**
+     * Get all notifications for the authenticated user
+     * @returns {Promise<Array>} Array of notifications records
+     */
+    async getAll() {
+        try {
+            console.log('notificationsService.getAll: Fetching all notifications');
+
+            const records = await pb.collection('expenses').getFullList();
+
+            console.log('notificationsService.getAll: Fetched', records.length, 'notifications');
+            return records;
+        } catch (e) {
+            console.error('notificationsService.getAll: Error', e);
+            throw e;
+        }
+    },
+
+    /**
+     * Create a new notification
+     * @param {Object} data - notification data
+     * @returns {Promise<Object>} Created notification record
+     */
+    async create(data) {
+        try {
+            console.log('notificationsService.create: Creating new notification', data.description);
+
+            // Get authenticated user ID
+            const userID = pb.authStore.model?.id;
+            if (!userID) {
+                const error = new Error('User not authenticated');
+                console.error('notificationsService.create: Error - not authenticated');
+                throw error;
+            }
+
+            // Build notification data object
+            const notificationData = {
+                // scrivi il dizionario per le notifiche
+            };
+
+            console.log('notificationsService.create: Saving notification to database');
+            const record = await pb.collection('notifications').create(notificationData);
+            console.log('notificationsService.create: Notification created successfully', record.id);
+
+            return record;
+
+        } catch(e) {
+            console.error('notificationsService.create: Error', e);
+            throw e;
+        }
+    },
+
+    /**
+     * Update an existing notification
+     * @param {string} id - notification ID
+     * @param {Object} data - Updated notification data
+     * @returns {Promise<Object>} Updated notification record
+     */
+    async update(id, data) {
+        try {
+            console.log('notificationsService.update: Updating notification', id);
+
+            // Build update data object
+            const updateData = {
+                // scrivi dizionario
+                data
+            };
+
+            const record = await pb.collection('notifications').update(id, updateData);
+            console.log('notificationsService.update: Notification updated successfully');
+
+            return record;
+
+        } catch (e) {
+            console.error('notificationsService.update: Error', e);
+            throw e;
+        }
+    },
+
+    /**
+     * Delete an notification
+     * @param {string} id - Notification ID
+     * @returns {Promise<boolean>} True if successful
+     */
+    async delete(id) {
+        try {
+            console.log('notificationsService.delete: Deleting notification', id);
+            await pb.collection('notifications').delete(id);
+            console.log('notificationsService.delete: Notification deleted successfully');
+            return true;
+        } catch (e) {
+            console.error('notificationsService.delete: Error', e);
             throw e;
         }
     }

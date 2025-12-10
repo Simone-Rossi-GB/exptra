@@ -74,18 +74,43 @@ export function OAuthCallback() {
       const redirectUri = 'https://exptra.ddns.net/oauth/callback.html';
       console.log('OAuthCallback: Using redirect URI:', redirectUri);
 
-      const authData = await pb.collection('Auth').authWithOAuth2Code(
-        provider,
-        code,
-        codeVerifier,
-        redirectUri,
-        // Additional create data for new users
-        {
-          emailVisibility: true
-        }
-      );
+      // Retry logic for slow connections
+      let authData = null;
+      let lastError = null;
+      const maxRetries = 3;
 
-      console.log('OAuthCallback: Authentication successful', authData.record.id);
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          console.log(`OAuthCallback: Attempt ${i + 1}/${maxRetries}`);
+          authData = await pb.collection('Auth').authWithOAuth2Code(
+            provider,
+            code,
+            codeVerifier,
+            redirectUri,
+            // Additional create data for new users
+            {
+              emailVisibility: true
+            }
+          );
+          console.log('OAuthCallback: Authentication successful', authData.record.id);
+          break; // Success, exit retry loop
+        } catch (err) {
+          lastError = err;
+          console.warn(`OAuthCallback: Attempt ${i + 1} failed:`, err.message);
+
+          // Only retry on network errors, not on auth errors
+          if (i < maxRetries - 1 && (err.message.includes('fetch') || err.message.includes('network'))) {
+            console.log(`OAuthCallback: Retrying in 1 second...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            throw err; // Don't retry, throw error
+          }
+        }
+      }
+
+      if (!authData) {
+        throw lastError || new Error('Failed to authenticate after retries');
+      }
 
       // Update last login information
       try {

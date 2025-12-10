@@ -101,18 +101,18 @@ export function AppLayout({ children }) {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="min-h-screen max-h-screen bg-background flex overflow-hidden">
+    <div className="min-h-screen max-h-screen bg-gray-50 dark:bg-background flex overflow-hidden">
       {/* Sidebar - Fixed on left, hidden on mobile */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-gray-800/50 bg-surface/50 backdrop-blur-xl fixed left-0 top-0 bottom-0 z-40">
+      <aside className="hidden lg:flex flex-col w-64 border-r border-gray-200 dark:border-gray-800/50 bg-white dark:bg-surface/50 fixed left-0 top-0 bottom-0 z-40 shadow-sm dark:shadow-none">
         {/* Logo and app name */}
-        <div className="p-6 border-b border-gray-800/50">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-800/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
               <Wallet className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-white text-lg">ExpTra</h2>
-              <p className="text-xs text-gray-500">Expense Tracker</p>
+              <h2 className="font-bold text-gray-900 dark:text-white text-lg">ExpTra</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-500">Expense Tracker</p>
             </div>
           </div>
         </div>
@@ -130,7 +130,7 @@ export function AppLayout({ children }) {
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
                     ? "bg-primary text-white shadow-lg shadow-primary/20"
-                    : "text-gray-400 hover:text-white hover:bg-surface-light"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-light"
                 }`}
               >
                 <Icon className="w-5 h-5" />
@@ -141,20 +141,20 @@ export function AppLayout({ children }) {
         </nav>
 
         {/* User profile section */}
-        <div className="p-4 border-t border-gray-800/50">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-light/50">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-800/50">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-surface-light/50">
             <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               <User className="w-7 h-7 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-base text-white truncate">{user?.username || 'User'}</p>
+              <p className="font-medium text-base text-gray-900 dark:text-white truncate">{user?.username || 'User'}</p>
             </div>
           </div>
 
           {/* Logout button */}
           <button
             onClick={handleLogout}
-            className="w-full mt-2 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+            className="w-full mt-2 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-200"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Esci</span>
@@ -165,14 +165,14 @@ export function AppLayout({ children }) {
       {/* Main content area - With margin for fixed sidebar */}
       <div className="flex-1 lg:ml-64 overflow-y-auto h-screen">
         {/* Top navigation bar */}
-        <header className="sticky top-0 z-30 bg-surface/80 backdrop-blur-xl border-b border-gray-800/50">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-surface/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800/50">
           <div className="px-4 sm:px-6 pb-4 pt-16 sm:pt-4 flex items-center justify-between gap-4">
             {/* Page title - dynamically set by current route */}
             <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate">
                 {navigationItems.find(item => item.path === currentPath)?.label || 'ExpTra'}
               </h1>
-              <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
                 {new Date().toLocaleDateString('it-IT', {
                   weekday: 'long',
                   year: 'numeric',
@@ -188,9 +188,9 @@ export function AppLayout({ children }) {
               <div className="relative">
                 <button
                   onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
-                  className="relative p-2 rounded-lg bg-surface-light hover:bg-surface transition-colors"
+                  className="relative p-2 rounded-lg bg-gray-100 dark:bg-surface-light hover:bg-gray-200 dark:hover:bg-surface transition-colors"
                 >
-                  <Bell className="w-5 h-5 text-gray-400" />
+                  <Bell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   {unreadCount > 0 && (
                     <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                   )}
@@ -212,9 +212,9 @@ export function AppLayout({ children }) {
                     setIsNotificationPanelOpen(false);
                     setIsUserMenuOpen(!isUserMenuOpen);
                   }}
-                  className="p-2 rounded-lg bg-surface-light hover:bg-surface transition-colors"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-surface-light hover:bg-gray-200 dark:hover:bg-surface transition-colors"
                 >
-                  <User className="w-5 h-5 text-gray-400" />
+                  <User className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                 </button>
 
                 {/* User Dropdown */}
@@ -227,16 +227,16 @@ export function AppLayout({ children }) {
                     />
 
                     {/* Dropdown Menu */}
-                    <div className="absolute right-0 mt-2 w-64 bg-surface border border-gray-800/50 rounded-xl shadow-xl z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-surface border border-gray-200 dark:border-gray-800/50 rounded-xl shadow-xl z-50 overflow-hidden">
                       {/* User Info */}
-                      <div className="p-4 border-b border-gray-800/50">
+                      <div className="p-4 border-b border-gray-200 dark:border-gray-800/50">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
                             <User className="w-6 h-6 text-primary" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-white truncate">{user?.username || 'User'}</p>
-                            <p className="text-xs text-gray-400 truncate">{user?.email || ''}</p>
+                            <p className="font-medium text-gray-900 dark:text-white truncate">{user?.username || 'User'}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{user?.email || ''}</p>
                           </div>
                         </div>
                       </div>
@@ -247,7 +247,7 @@ export function AppLayout({ children }) {
                           setIsUserMenuOpen(false);
                           handleLogout();
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200"
+                        className="w-full flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-200"
                       >
                         <LogOut className="w-5 h-5" />
                         <span className="font-medium">Esci</span>
@@ -266,7 +266,7 @@ export function AppLayout({ children }) {
         </main>
 
         {/* Mobile Bottom Navigation */}
-        <nav className="lg:hidden fixed bottom-4 left-8 right-8 bg-surface/95 backdrop-blur-xl border border-gray-800/50 rounded-2xl shadow-xl z-40">
+        <nav className="lg:hidden fixed bottom-4 left-8 right-8 bg-white/95 dark:bg-surface/95 backdrop-blur-xl border border-gray-200 dark:border-gray-800/50 rounded-2xl shadow-xl z-40">
           <div className="grid grid-cols-6 gap-1 p-1">
             {navigationItems.map((item) => {
               const Icon = item.icon;
@@ -279,7 +279,7 @@ export function AppLayout({ children }) {
                   className={`flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all ${
                     isActive
                       ? "bg-primary/20 text-primary"
-                      : "text-gray-400 hover:text-white hover:bg-surface-light"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-surface-light"
                   }`}
                 >
                   <Icon className="w-5 h-5" />

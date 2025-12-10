@@ -39,7 +39,7 @@ export const Select = forwardRef(({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {label}
         </label>
       )}
@@ -54,16 +54,16 @@ export const Select = forwardRef(({
             w-full
             ${sizeClasses[size]}
             appearance-none
-            bg-surface/50
-            border border-gray-700/50
+            bg-white dark:bg-surface/50
+            border border-gray-300 dark:border-gray-700/50
             rounded-xl
-            text-white
-            placeholder-gray-500
+            text-gray-900 dark:text-white
+            placeholder-gray-400 dark:placeholder-gray-500
             transition-all duration-200 ease-out
             focus:outline-none
             focus:ring-2 focus:ring-primary/50
             focus:border-primary
-            hover:border-gray-600
+            hover:border-gray-400 dark:hover:border-gray-600
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500' : ''}
             cursor-pointer
@@ -79,7 +79,7 @@ export const Select = forwardRef(({
             <option
               key={option.value}
               value={option.value}
-              className="bg-surface text-white"
+              className="bg-white dark:bg-surface text-gray-900 dark:text-white"
             >
               {option.label}
             </option>
@@ -90,7 +90,7 @@ export const Select = forwardRef(({
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
           <ChevronDown className={`
             transition-transform duration-200
-            ${disabled ? 'text-gray-600' : 'text-gray-400'}
+            ${disabled ? 'text-gray-400 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'}
             ${size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'}
           `} />
         </div>
@@ -133,15 +133,15 @@ export const SelectNative = forwardRef(({
           w-full
           px-4 py-2.5
           appearance-none
-          bg-surface/50
-          border border-gray-700/50
+          bg-white dark:bg-surface/50
+          border border-gray-300 dark:border-gray-700/50
           rounded-xl
-          text-white
+          text-gray-900 dark:text-white
           transition-all duration-200 ease-out
           focus:outline-none
           focus:ring-2 focus:ring-primary/50
           focus:border-primary
-          hover:border-gray-600
+          hover:border-gray-400 dark:hover:border-gray-600
           cursor-pointer
           ${error ? 'border-red-500/50 focus:ring-red-500/50' : ''}
           ${className}
@@ -152,7 +152,7 @@ export const SelectNative = forwardRef(({
       </select>
 
       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-        <ChevronDown className="w-5 h-5 text-gray-400" />
+        <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-400" />
       </div>
     </div>
   );

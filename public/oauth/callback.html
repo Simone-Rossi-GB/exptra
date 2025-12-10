@@ -3,61 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExpTra - OAuth Redirect</title>
+    <title>Reindirizzamento...</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .container {
-            text-align: center;
-            max-width: 500px;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 30px auto;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        p {
-            font-size: 16px;
-            opacity: 0.9;
-            margin: 10px 0;
-        }
-        .error {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
+
+        body {
+            background: #0a0a0f;
+            /* Pagina completamente nascosta - redirect immediato */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="title">Reindirizzamento in corso...</h1>
-        <div class="spinner"></div>
-        <p id="message">Attendere, sarai reindirizzato all'app ExpTra</p>
-        <div id="error" class="error" style="display: none;"></div>
-    </div>
-
     <script>
         // Get URL parameters from OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
@@ -70,76 +30,39 @@
         console.log('OAuth Callback - Parameters:', { code, state, error, error_description });
         console.log('OAuth Callback - User Agent:', navigator.userAgent);
 
-        // Handle OAuth error
-        if (error) {
-            console.error('OAuth error:', error, error_description);
+        // Detect if we're on mobile (try deep link) or web (redirect to web app)
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-            document.getElementById('title').textContent = 'Errore di autenticazione';
-            document.getElementById('message').textContent = error_description || error;
-            document.querySelector('.spinner').style.display = 'none';
+        // Redirect IMMEDIATELY without showing any UI
+        if (isMobile) {
+            console.log('Mobile detected - redirecting immediately via deep link');
 
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = 'Si è verificato un errore durante l\'autenticazione. Puoi chiudere questa finestra e riprovare.';
-            errorDiv.style.display = 'block';
-
-            // Redirect to app with error
-            setTimeout(() => {
+            if (error) {
                 const deepLink = `exptra://auth/callback?error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(error_description || '')}`;
                 console.log('Redirecting to deep link (error):', deepLink);
                 window.location.href = deepLink;
-            }, 2000);
-        } else if (code) {
-            // Handle successful OAuth callback
-            console.log('OAuth successful, redirecting to app with code');
-
-            // Detect if we're on mobile (try deep link) or web (redirect to web app)
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-            if (isMobile) {
-                // Mobile: use deep link
+            } else if (code) {
                 const deepLink = `exptra://auth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
-                console.log('Mobile detected, redirecting to deep link:', deepLink);
-
-                // Immediate redirect
+                console.log('Redirecting to deep link (success):', deepLink);
                 window.location.href = deepLink;
-
-                // Fallback: try again after 500ms
-                setTimeout(() => {
-                    console.log('Fallback redirect attempt');
-                    window.location.href = deepLink;
-                }, 500);
-
-                document.getElementById('message').textContent = 'Autenticazione riuscita! Reindirizzamento all\'app...';
-            } else {
-                // Web: redirect to React app (localhost or production)
-                // Since we're always on exptra.ddns.net/oauth/callback.html,
-                // we need to check where the user came from (stored in referrer or use localhost as default for dev)
-                const webAppUrl = 'http://localhost:5173/oauth-callback';
-
-                const redirectUrl = `${webAppUrl}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
-                console.log('Web detected, redirecting to:', redirectUrl);
-                console.log('Attempting redirect in 1 second...');
-
-                // Show the redirect URL to user for debugging
-                document.getElementById('message').innerHTML = `Autenticazione riuscita!<br>Reindirizzamento a: <a href="${redirectUrl}">${redirectUrl}</a>`;
-
-                // Immediate redirect
-                setTimeout(() => {
-                    console.log('Executing redirect now...');
-                    window.location.href = redirectUrl;
-                }, 1000);
             }
         } else {
-            // No code or error - invalid callback
-            console.error('Invalid OAuth callback: no code or error');
+            // Web: redirect immediately to React app without showing UI
+            console.log('Web detected - redirecting to React app immediately');
 
-            document.getElementById('title').textContent = 'Callback non valido';
-            document.getElementById('message').textContent = 'Parametri OAuth mancanti';
-            document.querySelector('.spinner').style.display = 'none';
-
-            const errorDiv = document.getElementById('error');
-            errorDiv.textContent = 'Callback OAuth non valido. Mancano i parametri necessari.';
-            errorDiv.style.display = 'block';
+            if (code) {
+                const webAppUrl = 'http://localhost:5173/oauth-callback';
+                const redirectUrl = `${webAppUrl}?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state || '')}`;
+                console.log('Redirecting to:', redirectUrl);
+                window.location.href = redirectUrl;
+            } else if (error) {
+                console.error('OAuth error:', error, error_description);
+                // Redirect to login with error message in URL
+                const webAppUrl = 'http://localhost:5173/login';
+                const redirectUrl = `${webAppUrl}?oauth_error=${encodeURIComponent(error_description || error)}`;
+                console.log('Redirecting to login with error');
+                window.location.href = redirectUrl;
+            }
         }
     </script>
 </body>

@@ -5,14 +5,29 @@
 @tailwind utilities;
 
 @layer base {
-  * {
+  /* Dark mode */
+  .dark * {
     @apply border-gray-800;
   }
 
-  body {
+  .dark body {
     @apply bg-background text-gray-100 font-sans antialiased;
+  }
+
+  /* Light mode */
+  * {
+    @apply border-gray-200;
+  }
+
+  body {
+    @apply bg-white text-gray-900 font-sans antialiased;
     margin: 0;
     min-height: 100vh;
+  }
+
+  /* Light mode specific overrides */
+  :root:not(.dark) {
+    --tw-bg-opacity: 1;
   }
 }
 

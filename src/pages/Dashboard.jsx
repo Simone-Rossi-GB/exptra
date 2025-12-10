@@ -5,7 +5,6 @@ import { AddExpenseModal } from "../components/AddExpenseModal.jsx";
 import { EditExpenseModal } from "../components/EditExpenseModal.jsx";
 import { CreditCard as CreditCardComponent } from "../components/CreditCard.jsx";
 import { SpendingTrendChart } from "../components/SpendingTrendChart.jsx";
-import { CategoryBreakdownChart } from "../components/CategoryBreakdownChart.jsx";
 import { ExpenseHistory } from "../components/ExpenseHistory.jsx";
 import pb, { expensesService, categoriesService, cardService } from "../lib/pocketBase.js";
 import {
@@ -16,9 +15,11 @@ import {
 import { Button } from "@/components/ui/button.jsx";
 import { motion } from "framer-motion";
 import { useToast } from "../components/ui/toast.jsx";
+import { useCurrency } from "../hooks/useCurrency.js";
 
 export function Dashboard() {
   const toast = useToast();
+  const { format } = useCurrency();
   const [expenses, setExpenses] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +99,7 @@ export function Dashboard() {
    */
   const stats = useMemo(() => {
     if (expenses.length === 0) {
-      return { total: 0, thisMonth: 0, count: 0, avgTransaction: 0, avgWeekly: 0 };
+      return { total: 0, thisMonth: 0, count: 0, avgDaily: 0, avgWeekly: 0 };
     }
 
     const total = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -108,8 +109,16 @@ export function Dashboard() {
     );
     const thisMonthTotal = thisMonthExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
 
-    // Calculate weekly average from last 7 days
+    // Calculate daily average from last 30 days
     const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const last30DaysExpenses = expenses.filter(
+      e => new Date(e.date) >= thirtyDaysAgo
+    );
+    const last30DaysTotal = last30DaysExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+    const avgDaily = last30DaysTotal / 30;
+
+    // Calculate weekly average from last 7 days
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const lastWeekExpenses = expenses.filter(
       e => new Date(e.date) >= sevenDaysAgo
@@ -120,7 +129,7 @@ export function Dashboard() {
       total,
       thisMonth: thisMonthTotal,
       count: expenses.length,
-      avgTransaction: total / expenses.length,
+      avgDaily,
       avgWeekly: lastWeekTotal,
     };
   }, [expenses]);
@@ -162,7 +171,7 @@ export function Dashboard() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-400">Caricamento dashboard...</p>
+          <p className="text-gray-600 dark:text-gray-400">Caricamento dashboard...</p>
         </div>
       </AppLayout>
     );
@@ -184,10 +193,10 @@ export function Dashboard() {
               expenses.length > 0 && (() => {
                 const lastExpense = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                 return (
-                  <div className="flex items-center gap-2 px-6 py-3 bg-surface/50">
-                    <TrendingUp className="w-4 h-4 text-red-400 rotate-180" />
-                    <span className="text-xs text-gray-400">
-                      Ultima: <span className="text-white font-semibold">€{lastExpense.amount.toFixed(2)}</span>
+                  <div className="flex items-center gap-2 px-6 py-3 bg-gray-100 dark:bg-surface/50">
+                    <TrendingUp className="w-4 h-4 text-red-500 dark:text-red-400 rotate-180" />
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      Ultima: <span className="text-gray-900 dark:text-white font-semibold">{format(lastExpense.amount)}</span>
                     </span>
                   </div>
                 );
@@ -205,7 +214,7 @@ export function Dashboard() {
           />
           <StatCard
             title="Media Giornaliera"
-            amount={stats.avgTransaction}
+            amount={stats.avgDaily}
             change="+5.1%"
             trend="up"
             icon={TrendingUp}
@@ -228,19 +237,16 @@ export function Dashboard() {
         {/* Spending Trend Chart */}
         <SpendingTrendChart expenses={expenses} />
 
-        {/* Charts and History */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <CategoryBreakdownChart expenses={expenses} categories={categories} />
-          <ExpenseHistory
-            expenses={expenses}
-            categories={categories}
-            onEditExpense={(expense) => {
-              setEditingExpense(expense);
-              setIsEditModalOpen(true);
-            }}
-            onDeleteExpense={handleDeleteExpense}
-          />
-        </div>
+        {/* Recent Transactions - Full Width */}
+        <ExpenseHistory
+          expenses={expenses}
+          categories={categories}
+          onEditExpense={(expense) => {
+            setEditingExpense(expense);
+            setIsEditModalOpen(true);
+          }}
+          onDeleteExpense={handleDeleteExpense}
+        />
       </div>
 
       {/* FAB Button for adding expense */}

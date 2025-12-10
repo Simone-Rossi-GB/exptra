@@ -7,6 +7,7 @@ import { Input } from "../components/ui/input.jsx";
 import { SelectNative } from "../components/ui/select.jsx";
 import { AddExpenseModal } from "../components/AddExpenseModal.jsx";
 import { EditExpenseModal } from "../components/EditExpenseModal.jsx";
+import { useCurrency } from "../hooks/useCurrency.js";
 import {
   ArrowLeftRight,
   Search,
@@ -64,6 +65,7 @@ export function Transactions() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [sortBy, setSortBy] = useState('date-desc');
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -71,6 +73,16 @@ export function Transactions() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const menuRef = useRef(null);
+  const { format: formatCurrency } = useCurrency();
+
+  // Debounce search term - updates debouncedSearchTerm after 300ms of no typing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Fetch data on mount
   useEffect(() => {
@@ -169,10 +181,10 @@ export function Transactions() {
 
   const filteredExpenses = useMemo(() => {
     let filtered = [...expenses];
-    if (searchTerm) {
+    if (debouncedSearchTerm) {
       filtered = filtered.filter(e =>
-        e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (e.description && e.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        e.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (e.description && e.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
       );
     }
     if (filterCategory !== 'all') {
@@ -186,7 +198,7 @@ export function Transactions() {
       return 0;
     });
     return filtered;
-  }, [expenses, searchTerm, filterCategory, sortBy]);
+  }, [expenses, debouncedSearchTerm, filterCategory, sortBy]);
 
   const stats = useMemo(() => {
     const total = filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
@@ -211,7 +223,7 @@ export function Transactions() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-400">Caricamento transazioni...</p>
+          <p className="text-gray-600 dark:text-gray-400">Caricamento transazioni...</p>
         </div>
       </AppLayout>
     );
@@ -221,7 +233,7 @@ export function Transactions() {
     <AppLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <p className="text-gray-400">Gestisci tutte le tue spese</p>
+          <p className="text-gray-600 dark:text-gray-400">Gestisci tutte le tue spese</p>
           <Button className="flex items-center gap-2">
             <Download className="w-4 h-4" />
             Esporta CSV
@@ -229,22 +241,22 @@ export function Transactions() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-surface/50 border-gray-800/50">
+          <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-400">Totale Filtrato</p>
-              <p className="text-2xl font-bold text-white mt-1">€{stats.total.toFixed(2)}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Totale Filtrato</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{formatCurrency(stats.total)}</p>
             </CardContent>
           </Card>
-          <Card className="bg-surface/50 border-gray-800/50">
+          <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-400">Transazioni</p>
-              <p className="text-2xl font-bold text-white mt-1">{stats.count}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Transazioni</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{stats.count}</p>
             </CardContent>
           </Card>
-          <Card className="bg-surface/50 border-gray-800/50">
+          <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-gray-400">Media</p>
-              <p className="text-2xl font-bold text-white mt-1">€{stats.avg.toFixed(2)}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Media</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{formatCurrency(stats.avg)}</p>
             </CardContent>
           </Card>
         </div>
@@ -257,13 +269,21 @@ export function Transactions() {
               type="text"
               placeholder="Cerca transazioni..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setOpenMenuId(null); // Close any open menu when searching
+              }}
+              onFocus={() => setOpenMenuId(null)} // Close menu when focusing search
               className="pl-10"
             />
           </div>
           <SelectNative
             value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
+            onChange={(e) => {
+              setFilterCategory(e.target.value);
+              setOpenMenuId(null); // Close any open menu when filtering
+            }}
+            onFocus={() => setOpenMenuId(null)}
           >
             <option value="all">Tutte le categorie</option>
             {categories.map(cat => (
@@ -273,7 +293,11 @@ export function Transactions() {
 
           <SelectNative
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setOpenMenuId(null); // Close any open menu when sorting
+            }}
+            onFocus={() => setOpenMenuId(null)}
           >
             <option value="date-desc">Data (più recenti)</option>
             <option value="date-asc">Data (più vecchie)</option>
@@ -283,9 +307,9 @@ export function Transactions() {
         </div>
         <Card>
           <CardContent className="p-0">
-            <div className="divide-y divide-gray-800/50">
+            <div className="divide-y divide-gray-200 dark:divide-gray-800/50">
               {filteredExpenses.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
+                <div className="text-center py-12 text-gray-600 dark:text-gray-500">
                   <ArrowLeftRight className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>Nessuna transazione trovata</p>
                 </div>
@@ -309,7 +333,7 @@ export function Transactions() {
                             setOpenMenuId(openMenuId === expense.id ? null : expense.id);
                           }
                         }}
-                        className="flex items-center gap-3 p-4 hover:bg-surface/30 transition-colors group cursor-pointer lg:cursor-default"
+                        className="flex items-center gap-3 p-4 hover:bg-gray-100 dark:hover:bg-surface/30 transition-colors group cursor-pointer lg:cursor-default"
                       >
                         <div
                           className="w-10 h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -318,9 +342,9 @@ export function Transactions() {
                           <IconComponent className="w-5 h-5 lg:w-6 lg:h-6" style={{ color: category.color }} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm lg:text-base font-semibold text-white truncate">{expense.title || expense.description || category.name || 'Spesa'}</p>
+                          <p className="text-sm lg:text-base font-semibold text-gray-900 dark:text-white truncate">{expense.title || expense.description || category.name || 'Spesa'}</p>
                           <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <span className="text-xs text-gray-500 flex items-center gap-1">
+                            <span className="text-xs text-gray-600 dark:text-gray-500 flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
                               {format(new Date(expense.date), 'dd MMM yyyy', { locale: it })}
                             </span>
@@ -330,7 +354,7 @@ export function Transactions() {
                           </div>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="text-base lg:text-lg font-bold text-red-400 whitespace-nowrap">-€{expense.amount.toFixed(2)}</p>
+                          <p className="text-base lg:text-lg font-bold text-red-500 dark:text-red-400 whitespace-nowrap">-{formatCurrency(expense.amount)}</p>
                         </div>
                         {/* Desktop only: Three dots menu */}
                         <div className="relative hidden lg:block" ref={openMenuId === expense.id ? menuRef : null}>
@@ -339,7 +363,7 @@ export function Transactions() {
                               e.stopPropagation();
                               setOpenMenuId(openMenuId === expense.id ? null : expense.id);
                             }}
-                            className="p-2 rounded-lg hover:bg-surface-light transition-colors text-gray-400 hover:text-white opacity-0 group-hover:opacity-100"
+                            className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-surface-light transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white opacity-0 group-hover:opacity-100"
                           >
                             <MoreVertical className="w-5 h-5" />
                           </button>
@@ -349,11 +373,11 @@ export function Transactions() {
                                 initial={{ opacity: 0, scale: 0.95, y: -10 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                className="absolute right-0 mt-2 w-40 bg-surface border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden"
+                                className="absolute right-0 mt-2 w-40 bg-white dark:bg-surface border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden"
                               >
                                 <button
                                   onClick={() => handleEditClick(expense)}
-                                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-white hover:bg-surface-light transition-colors"
+                                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-surface-light transition-colors"
                                 >
                                   <Edit2 className="w-4 h-4" />
                                   Modifica
@@ -365,7 +389,7 @@ export function Transactions() {
                                     }
                                     setOpenMenuId(null);
                                   }}
-                                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-400 hover:bg-surface-light transition-colors"
+                                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-surface-light transition-colors"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                   Elimina
@@ -383,12 +407,12 @@ export function Transactions() {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="lg:hidden border-t border-gray-800/50 bg-surface/50"
+                            className="lg:hidden border-t border-gray-200 dark:border-gray-800/50 bg-gray-50 dark:bg-surface/50"
                           >
                             <div className="flex gap-2 p-3">
                               <button
                                 onClick={() => handleEditClick(expense)}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-white bg-surface-light hover:bg-surface rounded-lg transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-gray-900 dark:text-white bg-gray-200 dark:bg-surface-light hover:bg-gray-300 dark:hover:bg-surface rounded-lg transition-colors"
                               >
                                 <Edit2 className="w-4 h-4" />
                                 Modifica
@@ -400,7 +424,7 @@ export function Transactions() {
                                   }
                                   setOpenMenuId(null);
                                 }}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-red-400 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors"
+                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
                                 Elimina
