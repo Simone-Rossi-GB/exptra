@@ -76,10 +76,10 @@ function Toast({ toast, onClose }) {
   };
 
   const colors = {
-    success: 'bg-green-500/10 border-green-500/50 text-green-400',
-    error: 'bg-red-500/10 border-red-500/50 text-red-400',
-    warning: 'bg-yellow-500/10 border-yellow-500/50 text-yellow-400',
-    info: 'bg-blue-500/10 border-blue-500/50 text-blue-400',
+    success: 'bg-green-50 dark:bg-green-500/10 border-green-500/50 text-green-600 dark:text-green-400',
+    error: 'bg-red-50 dark:bg-red-500/10 border-red-500/50 text-red-600 dark:text-red-400',
+    warning: 'bg-yellow-50 dark:bg-yellow-500/10 border-yellow-500/50 text-yellow-600 dark:text-yellow-400',
+    info: 'bg-blue-50 dark:bg-blue-500/10 border-blue-500/50 text-blue-600 dark:text-blue-400',
   };
 
   return (
@@ -91,7 +91,7 @@ function Toast({ toast, onClose }) {
         pointer-events-auto
         min-w-[320px] max-w-md
         p-4 rounded-xl
-        bg-surface/95 backdrop-blur-xl
+        bg-white/95 dark:bg-surface/95 backdrop-blur-xl
         border ${colors[toast.type]}
         shadow-xl
         flex items-start gap-3
@@ -103,14 +103,14 @@ function Toast({ toast, onClose }) {
 
       <div className="flex-1 min-w-0">
         {toast.title && (
-          <p className="font-semibold text-white mb-1">{toast.title}</p>
+          <p className="font-semibold text-gray-900 dark:text-white mb-1">{toast.title}</p>
         )}
-        <p className="text-sm text-gray-300">{toast.message}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300">{toast.message}</p>
       </div>
 
       <button
         onClick={onClose}
-        className="flex-shrink-0 p-1 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+        className="flex-shrink-0 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
       >
         <X className="w-4 h-4" />
       </button>

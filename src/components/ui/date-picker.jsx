@@ -18,7 +18,7 @@ export const DatePicker = forwardRef(({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {label}
         </label>
       )}
@@ -33,26 +33,25 @@ export const DatePicker = forwardRef(({
           className={`
             w-full
             px-4 py-2.5
-            bg-surface/50
-            border border-gray-700/50
+            bg-white dark:bg-surface/50
+            border border-gray-300 dark:border-gray-700/50
             rounded-xl
-            text-white
-            placeholder-gray-500
+            text-gray-900 dark:text-white
+            placeholder-gray-400 dark:placeholder-gray-500
             transition-all duration-200 ease-out
             focus:outline-none
             focus:ring-2 focus:ring-primary/50
             focus:border-primary
-            hover:border-gray-600
+            hover:border-gray-400 dark:hover:border-gray-600
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500' : ''}
-            [color-scheme:dark]
           `}
           {...props}
         />
 
         {/* Calendar icon */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <CalendarIcon className={`w-5 h-5 ${disabled ? 'text-gray-600' : 'text-gray-400'}`} />
+          <CalendarIcon className={`w-5 h-5 ${disabled ? 'text-gray-500 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'}`} />
         </div>
       </div>
 
@@ -167,7 +166,7 @@ export const CalendarDatePicker = forwardRef(({
   return (
     <div className={`w-full ${className}`} ref={containerRef}>
       {label && (
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           {label}
         </label>
       )}
@@ -180,48 +179,48 @@ export const CalendarDatePicker = forwardRef(({
           className={`
             w-full
             px-4 py-2.5
-            bg-surface/50
-            border border-gray-700/50
+            bg-white dark:bg-surface/50
+            border border-gray-300 dark:border-gray-700/50
             rounded-xl
             text-left
             transition-all duration-200 ease-out
             focus:outline-none
             focus:ring-2 focus:ring-primary/50
             focus:border-primary
-            hover:border-gray-600
+            hover:border-gray-400 dark:hover:border-gray-600
             disabled:opacity-50 disabled:cursor-not-allowed
             ${error ? 'border-red-500/50 focus:ring-red-500/50 focus:border-red-500' : ''}
-            ${value ? 'text-white' : 'text-gray-500'}
+            ${value ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-500'}
           `}
         >
           {value ? formatDate(value) : placeholder}
         </button>
 
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <CalendarIcon className={`w-5 h-5 ${disabled ? 'text-gray-600' : 'text-gray-400'}`} />
+          <CalendarIcon className={`w-5 h-5 ${disabled ? 'text-gray-500 dark:text-gray-600' : 'text-gray-600 dark:text-gray-400'}`} />
         </div>
 
         {/* Calendar Popup */}
         {isOpen && (
-          <div className="absolute top-full left-0 mt-2 p-4 bg-surface border border-gray-700 rounded-xl shadow-xl z-50 min-w-[280px]">
+          <div className="absolute top-full left-0 mt-2 p-4 bg-white dark:bg-surface border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl z-50 min-w-[280px]">
             {/* Month/Year Header */}
             <div className="flex items-center justify-between mb-4">
               <button
                 type="button"
                 onClick={previousMonth}
-                className="p-1 rounded-lg hover:bg-surface-light transition-colors text-gray-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-light transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
 
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
                 {displayDate.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
               </h3>
 
               <button
                 type="button"
                 onClick={nextMonth}
-                className="p-1 rounded-lg hover:bg-surface-light transition-colors text-gray-400 hover:text-white"
+                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-light transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -230,7 +229,7 @@ export const CalendarDatePicker = forwardRef(({
             {/* Weekday Headers */}
             <div className="grid grid-cols-7 gap-1 mb-2">
               {['D', 'L', 'M', 'M', 'G', 'V', 'S'].map((day, i) => (
-                <div key={i} className="text-center text-xs font-medium text-gray-500 py-1">
+                <div key={i} className="text-center text-xs font-medium text-gray-600 dark:text-gray-500 py-1">
                   {day}
                 </div>
               ))}
@@ -260,7 +259,7 @@ export const CalendarDatePicker = forwardRef(({
                         ? 'bg-primary text-white font-semibold'
                         : today
                           ? 'bg-primary/20 text-primary font-medium'
-                          : 'text-gray-300 hover:bg-surface-light'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-surface-light'
                       }
                     `}
                   >

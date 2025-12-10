@@ -172,7 +172,7 @@ export function Categories() {
   const handleDelete = async (id) => {
     console.log('Categories: Attempting to delete category', id);
 
-    if (!confirm('Sei sicuro di voler eliminare questa categoria?')) {
+    if (!window.confirm('Sei sicuro di voler eliminare questa categoria?')) {
       console.log('Categories: Delete cancelled by user');
       return;
     }
@@ -202,7 +202,7 @@ export function Categories() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-400">Caricamento categorie...</p>
+          <p className="text-gray-600 dark:text-gray-400">Caricamento categorie...</p>
         </div>
       </AppLayout>
     );
@@ -214,7 +214,7 @@ export function Categories() {
         {/* Header with add button */}
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-400">Gestisci le tue categorie di spesa</p>
+            <p className="text-gray-600 dark:text-gray-400">Gestisci le tue categorie di spesa</p>
           </div>
           {!isAdding && (
             <Button onClick={() => setIsAdding(true)} className="flex items-center gap-2 px-4 h-11">
@@ -230,7 +230,7 @@ export function Categories() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="bg-surface border-gray-800">
+            <Card>
               <CardHeader>
                 <CardTitle>{editingId ? 'Modifica Categoria' : 'Nuova Categoria'}</CardTitle>
               </CardHeader>
@@ -238,7 +238,7 @@ export function Categories() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Category name */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">Nome Categoria</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Nome Categoria</label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -250,7 +250,7 @@ export function Categories() {
 
                   {/* Category description */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">Descrizione (opzionale)</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Descrizione (opzionale)</label>
                     <Input
                       value={formData.description}
                       onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -260,7 +260,7 @@ export function Categories() {
 
                   {/* Icon selection */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">Icona</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Icona</label>
                     <div className="grid grid-cols-6 md:grid-cols-9 gap-2">
                       {AVAILABLE_ICONS.map((icon) => {
                         const IconComp = icon.component;
@@ -273,10 +273,10 @@ export function Categories() {
                             className={`p-3 rounded-lg border-2 transition-all ${
                               isSelected
                                 ? 'border-primary bg-primary/10'
-                                : 'border-gray-700 hover:border-gray-600'
+                                : 'border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600'
                             }`}
                           >
-                            <IconComp className="w-5 h-5 mx-auto text-gray-300" />
+                            <IconComp className="w-5 h-5 mx-auto text-gray-700 dark:text-gray-300" />
                           </button>
                         );
                       })}
@@ -285,7 +285,7 @@ export function Categories() {
 
                   {/* Color selection */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">Colore</label>
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Colore</label>
                     <div className="grid grid-cols-6 md:grid-cols-12 gap-2">
                       {PRESET_COLORS.map((color) => {
                         const isSelected = formData.color === color;
@@ -295,7 +295,7 @@ export function Categories() {
                             type="button"
                             onClick={() => setFormData(prev => ({ ...prev, color }))}
                             className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                              isSelected ? 'border-white scale-110' : 'border-gray-700'
+                              isSelected ? 'border-gray-900 dark:border-white scale-110' : 'border-gray-300 dark:border-gray-700'
                             }`}
                             style={{ backgroundColor: color }}
                           />
@@ -339,7 +339,7 @@ export function Categories() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="group"
               >
-                <Card className="bg-surface border-gray-800 hover:border-gray-700 transition-all">
+                <Card className="hover:shadow-lg transition-all">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
@@ -350,12 +350,12 @@ export function Categories() {
                           <IconComp className="w-6 h-6" style={{ color: category.color }} />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-white">{category.name}</h3>
+                          <h3 className="font-semibold text-gray-900 dark:text-white">{category.name}</h3>
                           {category.description && (
-                            <p className="text-sm text-gray-500 mt-1">{category.description}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-500 mt-1">{category.description}</p>
                           )}
                           {category.isDefault && (
-                            <span className="text-xs text-gray-600 mt-1 inline-block">Default</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-600 mt-1 inline-block">Default</span>
                           )}
                         </div>
                       </div>
@@ -364,16 +364,16 @@ export function Categories() {
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleEdit(category)}
-                          className="p-2 rounded-lg hover:bg-surface-light transition-colors"
+                          className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-light transition-colors"
                         >
-                          <Edit2 className="w-4 h-4 text-gray-400" />
+                          <Edit2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
                         </button>
                         {!category.isDefault && (
                           <button
                             onClick={() => handleDelete(category.id)}
-                            className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
+                            className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                           >
-                            <Trash2 className="w-4 h-4 text-red-400" />
+                            <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
                           </button>
                         )}
                       </div>
@@ -387,11 +387,11 @@ export function Categories() {
 
         {/* Empty state */}
         {categories.length === 0 && (
-          <Card className="bg-surface border-gray-800">
+          <Card>
             <CardContent className="p-12 text-center">
-              <Package className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-white mb-2">Nessuna categoria</h3>
-              <p className="text-gray-400 mb-6">Inizia creando la tua prima categoria di spesa</p>
+              <Package className="w-16 h-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Nessuna categoria</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Inizia creando la tua prima categoria di spesa</p>
               <Button onClick={() => setIsAdding(true)} className="flex items-center gap-2 mx-auto">
                 <Plus className="w-4 h-4" />
                 Crea Prima Categoria

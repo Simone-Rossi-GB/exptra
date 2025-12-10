@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectNative } from "@/components/ui/select";
 import { CalendarDatePicker } from "@/components/ui/date-picker";
+import { cardService } from "../lib/pocketBase.js";
 import {
   X,
   Plus,
@@ -59,6 +60,7 @@ const PAYMENT_METHODS = [
 
 export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cards, setCards] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -70,7 +72,21 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
     paymentMethod: "cash",
     isRecurring: false,
     recurringDate: "",
+    creditCard: null,
   });
+
+  // Fetch user's cards on component mount
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const fetchedCards = await cardService.getAll();
+        setCards(fetchedCards);
+      } catch (error) {
+        console.error('AddExpenseModal: Error fetching cards', error);
+      }
+    };
+    fetchCards();
+  }, []);
 
   const getIconComponent = (iconName) => {
     return ICON_MAP[iconName] || Package;
@@ -107,6 +123,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
         paymentMethod: formData.paymentMethod,
         isRecurring: formData.isRecurring,
         recurringDate: formData.recurringDate,
+        creditCard: formData.creditCard,
       });
 
       setFormData({
@@ -120,6 +137,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
         paymentMethod: "cash",
         isRecurring: false,
         recurringDate: "",
+        creditCard: null,
       });
 
       onClose();
@@ -273,6 +291,32 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense, categories }) {
                         })}
                       </div>
                     </div>
+
+                    {/* Carta di Credito - shown only when payment method is 'card' */}
+                    {formData.paymentMethod === 'card' && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-2"
+                      >
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Carta di Credito
+                        </label>
+                        <SelectNative
+                          name="creditCard"
+                          value={formData.creditCard || ''}
+                          onChange={handleChange}
+                        >
+                          <option value="">Non salvata</option>
+                          {cards.map((card) => (
+                            <option key={card.id} value={card.id}>
+                              {card.payment_circuit.toUpperCase()} ****{card.last_four_digits} - {card.card_holder}
+                            </option>
+                          ))}
+                        </SelectNative>
+                      </motion.div>
+                    )}
 
                     {/* Categoria */}
                     <div className="space-y-2">

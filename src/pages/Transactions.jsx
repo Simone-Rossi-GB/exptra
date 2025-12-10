@@ -137,10 +137,13 @@ export function Transactions() {
   // Handle delete
   const handleDelete = async (id) => {
     try {
+      console.log('Transactions: Deleting expense', id);
       await expensesService.delete(id);
       setExpenses(prev => prev.filter(e => e.id !== id));
+      console.log('Transactions: Expense deleted successfully');
     } catch (error) {
-      console.error('Transactions: Error deleting', error);
+      console.error('Transactions: Error deleting expense', error);
+      alert('Errore nell\'eliminazione della spesa: ' + (error.message || 'Errore sconosciuto'));
     }
   };
 
@@ -182,10 +185,12 @@ export function Transactions() {
   const filteredExpenses = useMemo(() => {
     let filtered = [...expenses];
     if (debouncedSearchTerm) {
-      filtered = filtered.filter(e =>
-        e.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (e.description && e.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
-      );
+      filtered = filtered.filter(e => {
+        const title = e.title || '';
+        const description = e.description || '';
+        return title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+          description.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      });
     }
     if (filterCategory !== 'all') {
       filtered = filtered.filter(e => e.category === filterCategory);
@@ -383,9 +388,9 @@ export function Transactions() {
                                   Modifica
                                 </button>
                                 <button
-                                  onClick={() => {
+                                  onClick={async () => {
                                     if (window.confirm('Sei sicuro di voler eliminare questa spesa?')) {
-                                      handleDelete(expense.id);
+                                      await handleDelete(expense.id);
                                     }
                                     setOpenMenuId(null);
                                   }}

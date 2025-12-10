@@ -12,6 +12,7 @@ import { Wallet } from './Wallet.jsx';
 import { Settings } from './Settings.jsx';
 import { Login } from './Login.jsx';
 import { Signup } from './Signup.jsx';
+import { ForgotPassword } from './ForgotPassword.jsx';
 import { OAuthCallback } from './OAuthCallback.jsx';
 
 // Import authentication context
@@ -109,6 +110,14 @@ createRoot(document.getElementById('root')).render(
             element={
               <PublicRoute>
                 <Signup />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPassword />
               </PublicRoute>
             }
           />

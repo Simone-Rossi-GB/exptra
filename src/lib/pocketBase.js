@@ -421,20 +421,64 @@ export const authService = {
             console.log('authService.onAuthChange: Auth state changed', model ? model.id : 'logged out');
             callback(model);
         });
+    },
+
+    /**
+     * Request password reset email
+     * @param {string} email - User email address
+     * @returns {Promise<boolean>} True if request was successful
+     */
+    async requestPasswordReset(email) {
+        try {
+            console.log('authService.requestPasswordReset: Requesting password reset for', email);
+            await pb.collection('Auth').requestPasswordReset(email);
+            console.log('authService.requestPasswordReset: Password reset email sent successfully');
+            return true;
+        } catch (e) {
+            console.error('authService.requestPasswordReset: Error', e);
+            throw e;
+        }
+    },
+
+    /**
+     * Confirm password reset with token
+     * @param {string} token - Reset token from email
+     * @param {string} password - New password
+     * @param {string} passwordConfirm - Password confirmation
+     * @returns {Promise<boolean>} True if reset was successful
+     */
+    async confirmPasswordReset(token, password, passwordConfirm) {
+        try {
+            console.log('authService.confirmPasswordReset: Confirming password reset with token');
+            await pb.collection('Auth').confirmPasswordReset(token, password, passwordConfirm);
+            console.log('authService.confirmPasswordReset: Password reset successful');
+            return true;
+        } catch (e) {
+            console.error('authService.confirmPasswordReset: Error', e);
+            throw e;
+        }
     }
 };
 
 export const preferencesService = {
 
     /**
-     * Update an existing preference
+     * Update user preferences
      * @param {string} id - user ID
-     * @param {Object} data - Updated preferences data
-     * @returns {Promise<Object>} Updated preferences record
+     * @param {Object} preferences - Updated preferences data (will be stored as JSON in the auth table)
+     * @returns {Promise<Object>} Updated user record
      */
     async update(id, preferences){
         try {
+            console.log('preferencesService.update: Updating preferences for user', id);
 
+            // Update the auth record with new preferences
+            const record = await pb.collection('Auth').update(id, {
+                preferences: JSON.stringify(preferences)
+            });
+
+            console.log('preferencesService.update: Preferences updated successfully');
+            return record;
         } catch (e) {
             console.error('preferencesService.update: Error', e);
             throw e;
@@ -443,11 +487,27 @@ export const preferencesService = {
 
     /**
      * Get preferences for the authenticated user
-     * @returns {Promise<Array>} Array of expense records with expanded category
+     * @returns {Promise<Object>} User preferences object (parsed from JSON)
      */
     async get() {
         try {
+            console.log('preferencesService.get: Fetching preferences');
 
+            const userID = pb.authStore.model?.id;
+            if (!userID) {
+                const error = new Error('User not authenticated');
+                console.error('preferencesService.get: Error - not authenticated');
+                throw error;
+            }
+
+            // Get the user record
+            const user = await pb.collection('Auth').getOne(userID);
+
+            // Parse preferences from JSON string, return empty object if null
+            const preferences = user.preferences ? JSON.parse(user.preferences) : {};
+
+            console.log('preferencesService.get: Preferences fetched successfully');
+            return preferences;
         } catch (e) {
             console.error('preferencesService.get: Error', e);
             throw e;
@@ -514,7 +574,8 @@ export const expensesService = {
                 notes: data.notes || '',
                 date: data.date,
                 paymentMethod: data.paymentMethod || 'card',
-                isRecurring: data.isRecurring || false
+                isRecurring: data.isRecurring || false,
+                creditCard: data.creditCard || null
             };
 
             console.log('expensesService.create: Saving expense to database');
@@ -548,7 +609,8 @@ export const expensesService = {
                 notes: data.notes || '',
                 date: data.date,
                 paymentMethod: data.paymentMethod || 'card',
-                isRecurring: data.isRecurring || false
+                isRecurring: data.isRecurring || false,
+                creditCard: data.creditCard || null
             };
 
             // Update category if provided - handle both 'category' and 'categoryID' field names

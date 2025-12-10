@@ -104,7 +104,7 @@ export function Analytics() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-400">Caricamento analytics...</p>
+          <p className="text-gray-600 dark:text-gray-400">Caricamento analytics...</p>
         </div>
       </AppLayout>
     );
@@ -130,24 +130,24 @@ export function Analytics() {
             </CardContent>
           </Card>
 
-          <Card className="bg-surface/50 border-gray-800/50 hover:shadow-glow transition-all duration-300 cursor-pointer group">
+          <Card className="hover:shadow-glow transition-all duration-300 cursor-pointer group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Questo Mese
                 </span>
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                   <Calendar className="w-5 h-5" />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold text-white tracking-tight">
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                 {formatCurrency(stats.thisMonth)}
               </h3>
               <div className="flex items-center gap-2 mt-2">
                 <div className={`flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-semibold ${
                   stats.change >= 0
-                    ? 'bg-red-500/10 text-red-400'
-                    : 'bg-green-500/10 text-green-400'
+                    ? 'bg-red-50 dark:bg-red-500/10 text-red-500 dark:text-red-400'
+                    : 'bg-green-50 dark:bg-green-500/10 text-green-500 dark:text-green-400'
                 }`}>
                   {stats.change >= 0 ? (
                     <TrendingUp className="w-3.5 h-3.5" />
@@ -156,31 +156,31 @@ export function Analytics() {
                   )}
                   <span>{stats.change >= 0 ? '+' : ''}{stats.change}%</span>
                 </div>
-                <span className="text-xs text-gray-500">vs mese scorso</span>
+                <span className="text-xs text-gray-600 dark:text-gray-500">vs mese scorso</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-surface/50 border-gray-800/50 hover:shadow-glow transition-all duration-300 cursor-pointer group">
+          <Card className="hover:shadow-glow transition-all duration-300 cursor-pointer group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Mese Scorso
                 </span>
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
                   <Calendar className="w-5 h-5" />
                 </div>
               </div>
-              <h3 className="text-3xl font-bold text-white tracking-tight">
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
                 {formatCurrency(stats.lastMonth)}
               </h3>
             </CardContent>
           </Card>
 
-          <Card className="bg-surface/50 border-gray-800/50 hover:shadow-glow transition-all duration-300 cursor-pointer group">
+          <Card className="hover:shadow-glow transition-all duration-300 cursor-pointer group">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
                   Categoria Top
                 </span>
                 <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
@@ -189,10 +189,10 @@ export function Analytics() {
               </div>
               {stats.topCategory && (
                 <>
-                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
                     {stats.topCategory.name}
                   </h3>
-                  <p className="text-sm text-gray-500 mt-1">{formatCurrency(stats.topCategoryAmount)}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-500 mt-1">{formatCurrency(stats.topCategoryAmount)}</p>
                 </>
               )}
             </CardContent>
@@ -206,7 +206,7 @@ export function Analytics() {
 
           <Card className="select-none pointer-events-none">
             <CardHeader>
-              <CardTitle className="text-xl text-white flex items-center gap-2">
+              <CardTitle className="text-xl flex items-center gap-2">
                 <PieChart className="w-5 h-5 text-primary" />
                 Distribuzione per Categoria
               </CardTitle>
@@ -242,8 +242,8 @@ export function Analytics() {
                       className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{ backgroundColor: item.color }}
                     />
-                    <span className="text-xs text-gray-400 truncate">{item.name}</span>
-                    <span className="text-xs text-gray-500 ml-auto">
+                    <span className="text-xs text-gray-700 dark:text-gray-400 truncate">{item.name}</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-500 ml-auto">
                       {formatCurrency(item.value, 'EUR', 0)}
                     </span>
                   </div>
