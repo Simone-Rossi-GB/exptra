@@ -423,9 +423,9 @@ export function Transactions() {
                                 Modifica
                               </button>
                               <button
-                                onClick={() => {
+                                onClick={async () => {
                                   if (window.confirm('Sei sicuro di voler eliminare questa spesa?')) {
-                                    handleDelete(expense.id);
+                                    await handleDelete(expense.id);
                                   }
                                   setOpenMenuId(null);
                                 }}

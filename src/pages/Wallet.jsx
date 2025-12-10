@@ -204,9 +204,8 @@ export function Wallet() {
     const card = cards.find(c => c.id === selectedCard);
     if (!card) return [];
 
-    // Filter expenses with paymentMethod === 'card' and matching card number
-    // Note: We'll need to check against the card's last 4 digits
-    return expenses.filter(e => e.paymentMethod === 'card');
+    // Filter expenses with paymentMethod === 'card' and matching this specific card
+    return expenses.filter(e => e.paymentMethod === 'card' && e.creditCard === selectedCard);
   }, [expenses, selectedCard, cards]);
 
   const getIconComponent = (iconName) => ICON_MAP[iconName] || Package;

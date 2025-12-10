@@ -45,7 +45,7 @@ export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId,
               className="w-full max-w-2xl max-h-[90vh] overflow-hidden"
             >
               <Card className="shadow-2xl">
-                <CardHeader className="border-b border-gray-800/50">
+                <CardHeader className="border-b border-gray-200 dark:border-gray-800/50">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
                       <CreditCardIcon className="w-5 h-5 text-primary" />
@@ -53,7 +53,7 @@ export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId,
                     </CardTitle>
                     <button
                       onClick={onClose}
-                      className="p-2 rounded-lg hover:bg-surface-light transition-colors text-gray-400 hover:text-white"
+                      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-light transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -63,13 +63,13 @@ export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId,
                 <CardContent className="overflow-y-auto max-h-[calc(90vh-100px)] p-6">
                   {cards.length === 0 ? (
                     <div className="text-center py-12">
-                      <CreditCardIcon className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                      <p className="text-gray-400">Nessuna carta disponibile</p>
-                      <p className="text-sm text-gray-500 mt-2">Aggiungi prima una carta dalla sezione Wallet</p>
+                      <CreditCardIcon className="w-16 h-16 mx-auto mb-4 text-gray-600 dark:text-gray-600" />
+                      <p className="text-gray-700 dark:text-gray-400">Nessuna carta disponibile</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-500 mt-2">Aggiungi prima una carta dalla sezione Wallet</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <p className="text-sm text-gray-400 mb-4">
+                      <p className="text-sm text-gray-700 dark:text-gray-400 mb-4">
                         Seleziona la carta che vuoi usare come predefinita per i pagamenti
                       </p>
 
@@ -104,7 +104,7 @@ export function SelectDefaultCardModal({ isOpen, onClose, cards, selectedCardId,
                         })}
                       </div>
 
-                      <div className="flex gap-3 pt-4 sticky bottom-0 bg-surface/95 backdrop-blur-sm">
+                      <div className="flex gap-3 pt-4 sticky bottom-0 bg-white/95 dark:bg-surface/95 backdrop-blur-sm">
                         <Button
                           type="button"
                           variant="secondary"

@@ -128,8 +128,11 @@ export const CalendarDatePicker = forwardRef(({
 
   // Handle date selection
   const handleDateClick = (day) => {
-    const newDate = new Date(displayDate.getFullYear(), displayDate.getMonth(), day);
-    const dateString = newDate.toISOString().split('T')[0];
+    // Format date as YYYY-MM-DD without timezone conversion
+    const year = displayDate.getFullYear();
+    const month = String(displayDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    const dateString = `${year}-${month}-${dayStr}`;
     onChange({ target: { name: props.name, value: dateString } });
     setIsOpen(false);
   };
