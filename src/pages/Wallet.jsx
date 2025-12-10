@@ -54,19 +54,14 @@ export function Wallet() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [cardToDelete, setCardToDelete] = useState(null);
 
-  // useEffect: carica le carte da PocketBase all'avvio
   useEffect(() => {
-    console.log('Wallet useEffect: Loading cards on mount');
     loadCards();
-  }, []); // Array vuoto = esegui solo una volta all'avvio
+  }, []);
 
-  // Funzione per caricare le carte da PocketBase
   const loadCards = async () => {
     try {
       setLoading(true);
 
-      // Check if user is authenticated
-      console.log('Wallet: Checking authentication...');
       const [records, fetchedExpenses, fetchedCategories] = await Promise.all([
         cardService.getAll(),
         expensesService.getAll(),
@@ -74,9 +69,8 @@ export function Wallet() {
       ]);
 
       console.log('Loaded cards from PocketBase:', records);
-      console.log('Number of cards:', records.length);
 
-      // Trasforma i dati da PocketBase al formato del componente CreditCard
+      // Transform PocketBase data to CreditCard component format
       const formattedCards = records.map(record => ({
         id: record.id,
         number: `•••• •••• •••• ${record.last_four_digits}`,
@@ -88,15 +82,9 @@ export function Wallet() {
         isDefault: record.isDefault || false
       }));
 
-      console.log('Formatted cards for UI:', formattedCards);
-
-      // Find and set default card
       const defaultCard = formattedCards.find(c => c.isDefault);
       if (defaultCard) {
-        console.log('Default card found:', defaultCard.id);
         setDefaultCardId(defaultCard.id);
-      } else {
-        console.log('No default card found');
       }
 
       setCards(formattedCards);
@@ -111,100 +99,62 @@ export function Wallet() {
     }
   };
 
-  // Funzione chiamata quando si aggiunge una carta
   const handleAddCard = (cardData) => {
-    console.log('handleAddCard received:', cardData);
-
-    // Aggiungi la carta allo stato locale
-    setCards(prev => {
-      const newCards = [cardData, ...prev];
-      console.log('Updated cards state:', newCards);
-      return newCards;
-    });
-
+    setCards(prev => [cardData, ...prev]);
     setIsAddCardModalOpen(false);
   };
 
-  // Apri dialog conferma eliminazione
   const handleDeleteCardClick = (card) => {
-    console.log('Wallet.jsx:125 - Apertura dialog conferma eliminazione per carta:', card.id);
     setCardToDelete(card);
     setIsDeleteDialogOpen(true);
   };
 
-  // Funzione per eliminare una carta (chiamata dopo conferma)
   const handleDeleteCardConfirmed = async () => {
-    if (!cardToDelete) {
-      console.log('Wallet.jsx:133 - Nessuna carta da eliminare');
-      return;
-    }
+    if (!cardToDelete) return;
 
     const id = cardToDelete.id;
-    console.log('Wallet.jsx:138 - Inizio eliminazione carta confermata:', id);
 
     try {
       await cardService.delete(id);
-      console.log('Wallet.jsx:142 - Carta eliminata da PocketBase con successo');
     } catch (err) {
-      // Se l'errore è auto-cancellation, ignoriamolo - la richiesta è andata comunque a buon fine
       if (err.isAbort || err.message?.includes('autocancelled')) {
-        console.log('Wallet.jsx:146 - Richiesta auto-cancellata ma carta eliminata');
+        console.log('Card deletion request auto-cancelled but completed successfully');
       } else {
-        console.error('Wallet.jsx:148 - ERRORE eliminazione carta:', err);
+        console.error('Error deleting card:', err);
         toast.error('Errore nell\'eliminazione della carta: ' + err.message, { duration: 5000 });
-        return; // Esci senza aggiornare lo stato
+        return;
       }
     }
 
-    // SEMPRE aggiorna lo stato locale (anche in caso di auto-cancellation)
-    console.log('Wallet.jsx:155 - Aggiornamento stato locale');
+    setCards(prev => prev.filter(c => c.id !== id));
 
-    // Rimuovi dallo stato locale
-    setCards(prev => {
-      const newCards = prev.filter(c => c.id !== id);
-      console.log('Wallet.jsx:160 - Carte rimanenti:', newCards.length);
-      return newCards;
-    });
-
-    // Se era la carta selezionata, deseleziona
     if (selectedCard === id) {
-      console.log('Wallet.jsx:166 - Carta eliminata era selezionata, deseleziono');
       setSelectedCard(null);
     }
 
-    // Se era la carta di default, reset default
     if (defaultCardId === id) {
-      console.log('Wallet.jsx:172 - Carta eliminata era default, resetto default');
       setDefaultCardId(null);
     }
 
-    console.log('Wallet.jsx:176 - Mostro toast successo');
     toast.success('Carta eliminata con successo', { duration: 3000 });
-
-    // Reset stato
     setCardToDelete(null);
   };
 
-  // Funzione per modificare una carta
   const handleEditCard = (card) => {
     setEditingCard(card);
     setIsEditCardModalOpen(true);
   };
 
-  // Funzione chiamata quando si aggiorna una carta
   const handleUpdateCard = (updatedCard) => {
     setCards(prev => prev.map(c => c.id === updatedCard.id ? updatedCard : c));
     setIsEditCardModalOpen(false);
     setEditingCard(null);
   };
 
-  // Filter expenses by selected card (only card payment method)
   const cardExpenses = useMemo(() => {
     if (!selectedCard) return [];
     const card = cards.find(c => c.id === selectedCard);
     if (!card) return [];
-
-    // Filter expenses with paymentMethod === 'card' and matching this specific card
     return expenses.filter(e => e.paymentMethod === 'card' && e.creditCard === selectedCard);
   }, [expenses, selectedCard, cards]);
 
@@ -219,7 +169,6 @@ export function Wallet() {
     };
   };
 
-  // Loading state
   if (loading) {
     return (
       <AppLayout>
@@ -230,7 +179,6 @@ export function Wallet() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <AppLayout>
@@ -249,9 +197,7 @@ export function Wallet() {
         </div>
 
         <div className="space-y-8">
-        {/* First Row: Add Card Button + Non-Default Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Add Card Button - FIRST (on the left) */}
           {cards.length < 3 && (
             <motion.button
               initial={{ opacity: 0, y: 20 }}
@@ -267,9 +213,7 @@ export function Wallet() {
             </motion.button>
           )}
 
-          {/* Non-default cards */}
           {cards.filter(c => c.id !== defaultCardId).map((card, index) => {
-            console.log('Rendering non-default card:', card);
             const isSelected = selectedCard === card.id;
             return (
               <motion.div
@@ -302,7 +246,6 @@ export function Wallet() {
                   </button>
                   <button
                     onClick={(e) => {
-                      console.log('Wallet.jsx:273 - PULSANTE ELIMINA CLICCATO', card.id);
                       e.stopPropagation();
                       handleDeleteCardClick(card);
                     }}
@@ -315,7 +258,6 @@ export function Wallet() {
             );
           })}
 
-          {/* Max cards warning */}
           {cards.length >= 3 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -329,9 +271,7 @@ export function Wallet() {
           )}
         </div>
 
-        {/* Second Row: Default Card + Select Default Button + Monthly Spending */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Default Card Display */}
           <div className="md:col-span-1">
             {defaultCardId && cards.find(c => c.id === defaultCardId) ? (
               <motion.div
@@ -392,7 +332,6 @@ export function Wallet() {
             )}
           </div>
 
-          {/* Select Default Card Button */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -418,13 +357,12 @@ export function Wallet() {
             </div>
           </motion.div>
 
-          {/* Monthly Spending */}
           <Card>
             <CardContent className="p-6 flex flex-col justify-center min-h-[200px]">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Spese Questo Mese</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{formatCurrency(expenses.filter(e => {
+                  <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mt-2 break-words">{formatCurrency(expenses.filter(e => {
                     const expenseDate = new Date(e.date);
                     const now = new Date();
                     return expenseDate.getMonth() === now.getMonth() && expenseDate.getFullYear() === now.getFullYear();
@@ -436,7 +374,6 @@ export function Wallet() {
           </Card>
         </div>
 
-        {/* Recent Transactions with this card */}
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">Transazioni Recenti con Carta</CardTitle>
@@ -464,7 +401,6 @@ export function Wallet() {
                       transition={{ delay: index * 0.05 }}
                       className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-surface/50 transition-colors"
                     >
-                      {/* Icon */}
                       <div
                         className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: category.color + '20' }}
@@ -475,7 +411,6 @@ export function Wallet() {
                         />
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                           {expense.title || expense.description || category.name || 'Spesa'}
@@ -486,7 +421,6 @@ export function Wallet() {
                         </p>
                       </div>
 
-                      {/* Amount */}
                       <div className="text-right">
                         <p className="text-sm font-semibold text-red-500 dark:text-red-400">
                           -{formatCurrency(expense.amount)}
@@ -503,14 +437,12 @@ export function Wallet() {
         </div>
       </div>
 
-      {/* Add Card Modal */}
       <AddCardModal
         isOpen={isAddCardModalOpen}
         onClose={() => setIsAddCardModalOpen(false)}
         onAddCard={handleAddCard}
       />
 
-      {/* Edit Card Modal */}
       <EditCardModal
         isOpen={isEditCardModalOpen}
         onClose={() => {
@@ -521,7 +453,6 @@ export function Wallet() {
         card={editingCard}
       />
 
-      {/* Confirm Delete Dialog */}
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => {
@@ -536,7 +467,6 @@ export function Wallet() {
         isDangerous={true}
       />
 
-      {/* Select Default Card Modal */}
       <SelectDefaultCardModal
         isOpen={isSelectDefaultCardModalOpen}
         onClose={() => setIsSelectDefaultCardModalOpen(false)}

@@ -19,8 +19,8 @@
   "navigation": {
     "dashboard": "Dashboard",
     "transactions": "Transazioni",
-    "analytics": "Analytics",
-    "wallet": "Wallet",
+    "analytics": "Analitiche",
+    "wallet": "Portafoglio",
     "settings": "Impostazioni"
   },
   "dashboard": {
@@ -53,7 +53,7 @@
     "confirmDelete": "Sei sicuro di voler eliminare questa spesa?"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Analitiche",
     "loading": "Caricamento analytics...",
     "totalSpending": "Spese Totali",
     "thisMonth": "Questo Mese",
@@ -64,8 +64,8 @@
     "vsLastMonth": "vs mese scorso"
   },
   "wallet": {
-    "title": "Wallet",
-    "loading": "Caricamento wallet...",
+    "title": "Portafoglio",
+    "loading": "Caricamento portafoglio...",
     "addCard": "Aggiungi Carta",
     "editCard": "Modifica Carta",
     "deleteCard": "Elimina Carta",

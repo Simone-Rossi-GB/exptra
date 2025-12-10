@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authService } from '../lib/pocketBase.js';
+import { applyTheme } from '../utils/theme.js';
+import pb from '../lib/pocketBase.js';
 
 // Create authentication context
 const AuthContext = createContext();
@@ -14,6 +16,36 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   /**
+   * Load and apply user theme from preferences
+   * @param {string} userId - User ID
+   */
+  const loadUserTheme = async (userId) => {
+    try {
+      console.log('AuthContext: Loading user theme preferences');
+      const userRecord = await pb.collection('Auth').getOne(userId);
+
+      // Handle both object and string formats
+      let preferences = userRecord.preferences || {};
+      if (typeof preferences === 'string') {
+        try {
+          preferences = JSON.parse(preferences);
+        } catch (e) {
+          console.error('AuthContext: Error parsing preferences', e);
+          preferences = {};
+        }
+      }
+
+      const userTheme = preferences.theme || 'dark';
+
+      console.log('AuthContext: Applying user theme:', userTheme);
+      applyTheme(userTheme);
+    } catch (error) {
+      console.error('AuthContext: Error loading user theme', error);
+      // If error, keep current theme
+    }
+  };
+
+  /**
    * Check if user is already authenticated on mount
    */
   useEffect(() => {
@@ -24,6 +56,8 @@ export function AuthProvider({ children }) {
       const currentUser = authService.getCurrentUser();
       console.log('AuthContext: User is authenticated', currentUser);
       setUser(currentUser);
+      // Load and apply user's theme
+      loadUserTheme(currentUser.id);
     } else {
       console.log('AuthContext: No authenticated user found');
     }
@@ -34,6 +68,10 @@ export function AuthProvider({ children }) {
     const unsubscribe = authService.onAuthChange((model) => {
       console.log('AuthContext: Auth state changed', model);
       setUser(model);
+      // Load theme when user logs in
+      if (model) {
+        loadUserTheme(model.id);
+      }
     });
 
     // Cleanup subscription
@@ -55,6 +93,10 @@ export function AuthProvider({ children }) {
       const authData = await authService.login(email, password);
       console.log('AuthContext: Login successful', authData.record);
       setUser(authData.record);
+
+      // Load and apply user's theme
+      await loadUserTheme(authData.record.id);
+
       return authData;
     } catch (error) {
       console.error('AuthContext: Login failed', error);
@@ -82,6 +124,10 @@ export function AuthProvider({ children }) {
       }
 
       setUser(authData.record);
+
+      // Load and apply user's theme
+      await loadUserTheme(authData.record.id);
+
       return authData;
     } catch (error) {
       console.error('AuthContext: Google OAuth failed', error);
@@ -109,6 +155,10 @@ export function AuthProvider({ children }) {
       }
 
       setUser(authData.record);
+
+      // Load and apply user's theme
+      await loadUserTheme(authData.record.id);
+
       return authData;
     } catch (error) {
       console.error('AuthContext: GitHub OAuth failed', error);
@@ -130,6 +180,25 @@ export function AuthProvider({ children }) {
       const authData = await authService.signup(email, password, username);
       console.log('AuthContext: Signup successful', authData.record);
       setUser(authData.record);
+
+      // For new users, apply the current theme (from localStorage) which reflects
+      // the theme that was set on Login/Signup pages
+      const currentTheme = localStorage.getItem('theme') || 'dark';
+      console.log('AuthContext: Setting initial theme for new user:', currentTheme);
+
+      // Save theme to user preferences
+      try {
+        await pb.collection('Auth').update(authData.record.id, {
+          preferences: {
+            theme: currentTheme,
+            currency: 'EUR',
+            language: 'it'
+          }
+        });
+      } catch (prefError) {
+        console.warn('AuthContext: Could not save initial preferences', prefError);
+      }
+
       return authData;
     } catch (error) {
       console.error('AuthContext: Signup failed', error);

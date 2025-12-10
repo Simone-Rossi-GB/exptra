@@ -359,7 +359,7 @@ export function Transactions() {
                           </div>
                         </div>
                         <div className="text-right flex-shrink-0">
-                          <p className="text-base lg:text-lg font-bold text-red-500 dark:text-red-400 whitespace-nowrap">-{formatCurrency(expense.amount)}</p>
+                          <p className="text-base lg:text-lg font-bold text-red-500 dark:text-red-400">-{formatCurrency(expense.amount)}</p>
                         </div>
                         {/* Desktop only: Three dots menu */}
                         <div className="relative hidden lg:block" ref={openMenuId === expense.id ? menuRef : null}>

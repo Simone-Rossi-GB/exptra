@@ -43,8 +43,8 @@ function ProtectedRoute({ children }) {
   if (loading) {
     console.log('ProtectedRoute: Checking authentication...');
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-white">Loading...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
+        <p className="text-gray-900 dark:text-white">Loading...</p>
       </div>
     );
   }
@@ -72,8 +72,8 @@ function PublicRoute({ children }) {
   if (loading) {
     console.log('PublicRoute: Checking authentication...');
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-white">Loading...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
+        <p className="text-gray-900 dark:text-white">Loading...</p>
       </div>
     );
   }

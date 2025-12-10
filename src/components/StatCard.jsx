@@ -26,7 +26,7 @@ export function StatCard({ title, amount, change, trend, icon: Icon, delay = 0, 
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight break-words whitespace-normal">
               {typeof amount === 'number' ? format(amount) : amount}
             </h3>
 

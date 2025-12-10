@@ -31,14 +31,14 @@ export function ForgotPassword() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-surface via-background to-surface">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gradient-to-br dark:from-surface dark:via-background dark:to-surface">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.3 }}
           className="w-full max-w-md"
         >
-          <Card className="shadow-2xl border-gray-200 dark:border-gray-800">
+          <Card className="shadow-2xl bg-white/80 dark:bg-surface border-gray-200 dark:border-gray-800">
             <CardHeader className="text-center">
               <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-500/10 rounded-full flex items-center justify-center mb-4">
                 <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
@@ -66,14 +66,14 @@ export function ForgotPassword() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-surface via-background to-surface">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gradient-to-br dark:from-surface dark:via-background dark:to-surface">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
         className="w-full max-w-md"
       >
-        <Card className="shadow-2xl border-gray-200 dark:border-gray-800">
+        <Card className="shadow-2xl bg-white/80 dark:bg-surface border-gray-200 dark:border-gray-800">
           <CardHeader className="text-center">
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Mail className="w-8 h-8 text-primary" />
@@ -103,9 +103,9 @@ export function ForgotPassword() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/50 rounded-lg"
+                  className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-300 dark:border-red-500/50 rounded-lg"
                 >
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                  <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
                 </motion.div>
               )}
 

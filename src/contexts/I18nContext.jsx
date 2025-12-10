@@ -14,22 +14,64 @@ const I18nContext = createContext();
 
 export function I18nProvider({ children }) {
   const { user } = useAuth();
-  const [language, setLanguage] = useState('it');
+  const [language, setLanguage] = useState(() => {
+    // Initialize from localStorage
+    const savedLang = localStorage.getItem('language');
+    console.log('I18nContext: Initializing language from localStorage:', savedLang);
+    return savedLang && translations[savedLang] ? savedLang : 'it';
+  });
 
-  // Load language from user preferences or localStorage
+  // Load language from user preferences when user logs in or preferences change
   useEffect(() => {
-    if (user?.preferences?.language) {
-      setLanguage(user.preferences.language);
-    } else {
-      const savedLang = localStorage.getItem('language');
-      if (savedLang && translations[savedLang]) {
-        setLanguage(savedLang);
+    const loadUserLanguage = async () => {
+      if (user?.id) {
+        try {
+          console.log('I18nContext: User detected, checking preferences');
+
+          // Get preferences directly from user object (it's already fetched by AuthContext)
+          let prefs = user.preferences || {};
+
+          console.log('I18nContext: Raw preferences from user object:', prefs);
+
+          if (typeof prefs === 'string') {
+            try {
+              prefs = JSON.parse(prefs);
+              console.log('I18nContext: Parsed preferences from JSON string:', prefs);
+            } catch (e) {
+              console.error('I18nContext: Error parsing preferences', e);
+              prefs = {};
+            }
+          } else {
+            console.log('I18nContext: Preferences already object:', prefs);
+          }
+
+          if (prefs.language && prefs.language !== language) {
+            console.log('I18nContext: Loading user language from preferences:', prefs.language, '(current:', language + ')');
+            setLanguage(prefs.language);
+          } else if (prefs.language === language) {
+            console.log('I18nContext: Language already set to:', language, '- no change needed');
+          } else {
+            console.log('I18nContext: No language in preferences, keeping current:', language);
+          }
+        } catch (error) {
+          console.error('I18nContext: Error loading user language:', error);
+        }
+      } else {
+        console.log('I18nContext: No user, checking localStorage');
+        const savedLang = localStorage.getItem('language');
+        if (savedLang && translations[savedLang]) {
+          console.log('I18nContext: Loading language from localStorage:', savedLang);
+          setLanguage(savedLang);
+        }
       }
-    }
+    };
+
+    loadUserLanguage();
   }, [user]);
 
   // Save to localStorage when language changes
   useEffect(() => {
+    console.log('I18nContext: Language changed, saving to localStorage:', language);
     localStorage.setItem('language', language);
   }, [language]);
 
@@ -67,10 +109,12 @@ export function I18nProvider({ children }) {
    * @param {string} newLanguage - Language code (it, en, fr)
    */
   const changeLanguage = (newLanguage) => {
+    console.log('I18nContext: changeLanguage called with:', newLanguage);
     if (translations[newLanguage]) {
+      console.log('I18nContext: Language is supported, changing from', language, 'to', newLanguage);
       setLanguage(newLanguage);
     } else {
-      console.error(`Language not supported: ${newLanguage}`);
+      console.error(`I18nContext: Language not supported: ${newLanguage}`);
     }
   };
 

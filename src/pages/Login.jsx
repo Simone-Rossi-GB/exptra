@@ -98,18 +98,18 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Bentornato</h1>
-          <p className="text-gray-400">Accedi al tuo account ExpTra</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Bentornato</h1>
+          <p className="text-gray-600 dark:text-gray-400">Accedi al tuo account ExpTra</p>
         </div>
 
-        <Card className="bg-surface/50 border-gray-800/50">
+        <Card className="bg-white/80 dark:bg-surface/50 border-gray-200 dark:border-gray-800/50">
           <CardContent className="p-6 space-y-6">
             {/* Error Message */}
             {error && (
@@ -146,19 +146,19 @@ export function Login() {
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-700"></div>
+                <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-surface text-gray-400">oppure</span>
+                <span className="px-2 bg-white dark:bg-surface text-gray-600 dark:text-gray-400">oppure</span>
               </div>
             </div>
 
             {/* Email/Password Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Email</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <Input
                     type="email"
                     placeholder="nome@esempio.com"
@@ -171,9 +171,9 @@ export function Login() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-300">Password</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-gray-400" />
                   <Input
                     type="password"
                     placeholder="••••••••"
@@ -191,9 +191,9 @@ export function Login() {
                     type="checkbox"
                     checked={formData.rememberMe}
                     onChange={(e) => setFormData(prev => ({ ...prev, rememberMe: e.target.checked }))}
-                    className="w-4 h-4 rounded border-gray-700 bg-surface text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
+                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-surface text-primary focus:ring-2 focus:ring-primary focus:ring-offset-0"
                   />
-                  <span className="text-sm text-gray-300">Ricordami</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">Ricordami</span>
                 </label>
                 <Link to="/forgot-password" className="text-sm text-primary hover:text-primary-light transition-colors">
                   Password dimenticata?
@@ -205,7 +205,7 @@ export function Login() {
               </Button>
             </form>
 
-            <div className="text-center text-sm text-gray-400">
+            <div className="text-center text-sm text-gray-600 dark:text-gray-400">
               Non hai un account?{' '}
               <Link to="/signup" className="text-primary hover:text-primary-light transition-colors font-medium">
                 Registrati

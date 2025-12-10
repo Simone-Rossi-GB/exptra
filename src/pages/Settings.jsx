@@ -69,8 +69,16 @@ export function Settings() {
       setUsername(userRecord.username || '');
       setEmail(userRecord.email || '');
 
-      // Load preferences from JSON field
-      const prefs = userRecord.preferences || {};
+      // Load preferences from JSON field (handle both object and string)
+      let prefs = userRecord.preferences || {};
+      if (typeof prefs === 'string') {
+        try {
+          prefs = JSON.parse(prefs);
+        } catch (e) {
+          console.error('Settings: Error parsing preferences', e);
+          prefs = {};
+        }
+      }
       setCurrency(prefs.currency || 'EUR');
       setLanguage(prefs.language || 'it');
       setTheme(prefs.theme || 'dark');
@@ -118,17 +126,27 @@ export function Settings() {
     try {
       console.log('Settings: Saving preferences', { currency, language, theme });
 
-      // Save preferences as JSON object
+      // Save preferences as JSON object (NOT as string!)
+      const preferencesObject = {
+        currency: currency,
+        language: language,
+        theme: theme
+      };
+
+      console.log('Settings: Preferences object to save:', preferencesObject);
+
       await pb.collection('Auth').update(user.id, {
-        preferences: {
-          currency: currency,
-          language: language,
-          theme: theme
-        }
+        preferences: preferencesObject
       });
+
+      console.log('Settings: Preferences saved to PocketBase');
+
+      const updatedUser = await pb.collection('Auth').getOne(user.id);
+      pb.authStore.save(pb.authStore.token, updatedUser);
 
       // Save theme to localStorage
       localStorage.setItem('theme', theme);
+      console.log('Settings: Theme saved to localStorage:', theme);
 
       // Apply theme immediately
       if (theme === 'dark') {
@@ -136,8 +154,8 @@ export function Settings() {
       } else {
         document.documentElement.classList.remove('dark');
       }
+      console.log('Settings: Theme applied to DOM');
 
-      // Update language in i18n context
       changeLanguage(language);
 
       toast.success('Preferenze aggiornate con successo', { duration: 3000 });
@@ -368,7 +386,7 @@ export function Settings() {
                 label={
                   <span>
                     <Globe className="w-4 h-4 inline mr-1" />
-                    Lingua
+                    Lingua (non funzionante in questa versione)
                   </span>
                 }
                 value={language}
@@ -460,7 +478,7 @@ export function Settings() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="w-5 h-5 text-primary" />
-              Gestione Dati
+              Gestione Dati (da implementare)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
