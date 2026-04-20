@@ -1,120 +1,97 @@
-# ExpenseTracker
+# Exptra — Expense Tracker
 
-Personal expense tracking application built with React, Tauri, and PocketBase.
+A personal expense tracking app with charts, categories, and multi-provider authentication. Runs as both a web app and a native desktop app (via Tauri).
+
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Tauri](https://img.shields.io/badge/Tauri-24C8D8?style=flat-square&logo=tauri&logoColor=white)
+![PocketBase](https://img.shields.io/badge/PocketBase-B8DBE4?style=flat-square&logo=pocketbase&logoColor=black)
+
+---
 
 ## Features
 
-- 💰 Track expenses with categories
-- 📊 Visualize spending with charts
-- 🔐 Multiple authentication methods (Email, Google, GitHub)
-- 🌓 Dark mode support
-- 🖥️ Desktop app (Tauri) + Web app
-- 📱 Responsive design
+- Track expenses with categories
+- Visualize spending with charts
+- Multi-provider authentication: Email, Google, GitHub (OAuth2)
+- Dark mode
+- Desktop app (Tauri) + web app from the same codebase
+- Responsive design
+
+---
 
 ## Tech Stack
 
-- **Frontend**: React 19 + Vite
-- **Desktop**: Tauri 2
-- **Backend**: PocketBase (self-hosted)
-- **Database**: SQLite (via PocketBase)
-- **Auth**: PocketBase Auth + OAuth2 (Google, GitHub)
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 19, Vite |
+| Desktop | Tauri 2 |
+| Backend | PocketBase (self-hosted) |
+| Database | SQLite (via PocketBase) |
+| Auth | PocketBase Auth + OAuth2 (Google, GitHub) |
+| CI | GitHub Actions (Windows build) |
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- PocketBase server running (see backend setup)
-- OAuth credentials (for Google/GitHub login)
+- A running PocketBase instance
+- OAuth credentials for Google and/or GitHub
 
-### Installation
+### Setup
 
-1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd exptra
-```
-
-2. Install dependencies:
-```bash
+# Install dependencies
 npm install
-```
 
-3. Setup environment variables:
-```bash
-# Copy the example file
+# Copy env file and fill in your values
 cp .env.example .env.local
-
-# Edit .env.local and fill in your actual values
-# NEVER commit .env.local to Git!
 ```
 
-4. Configure your OAuth credentials in `.env.local`:
-   - See [DESIGN_GUIDE.md](./DESIGN_GUIDE.md) for OAuth setup instructions
-   - Get Google Client ID/Secret from Google Cloud Console
-   - Get GitHub Client ID/Secret from GitHub Developer Settings
+Required environment variables:
+```
+VITE_POCKETBASE_URL=http://localhost:8090
+VITE_GOOGLE_CLIENT_ID=...
+VITE_GITHUB_CLIENT_ID=...
+```
 
-### Development
+### Run
 
-Run the development server:
 ```bash
+# Web app
 npm run dev
-```
 
-Run Tauri desktop app:
-```bash
+# Desktop app
 npm run tauri:dev
 ```
 
 ### Build
 
-Build for production:
 ```bash
+# Web
 npm run build
-```
 
-Build Tauri app:
-```bash
+# Desktop (Tauri)
 npm run tauri:build
 ```
 
-## Environment Variables
+---
 
-All environment variables must be prefixed with `VITE_` to be exposed to the frontend.
+## Database Schema (PocketBase Collections)
 
-Required variables (see `.env.example`):
-- `VITE_POCKETBASE_URL` - Your PocketBase server URL
-- `VITE_GOOGLE_CLIENT_ID` - Google OAuth Client ID
-- `VITE_GITHUB_CLIENT_ID` - GitHub OAuth Client ID
-
-**⚠️ SECURITY NOTE**:
-- Never commit `.env.local` or any file containing real credentials
-- All `VITE_*` variables are exposed in the frontend bundle
-- Sensitive secrets (like Client Secrets) should be handled server-side only
-
-## Database Schema
-
-See PocketBase collections:
-- `Auth` - Users with multi-provider authentication
-- `linked_auth_providers` - Track multiple auth methods per user
-- `categories` - Expense categories
-- `expenses` - Expense records
-
-For detailed schema, check the backup in `docs/` or PocketBase Admin UI.
-
-## Documentation
-
-- [DESIGN_GUIDE.md](./DESIGN_GUIDE.md) - Frontend design guidelines and resources
-- [doc.md](./doc.md) - Original project requirements
-
-## Contributing
-
-This is a personal project, but suggestions are welcome via issues.
-
-## License
-
-MIT
+| Collection | Description |
+|------------|-------------|
+| `Auth` | Users with multi-provider authentication |
+| `linked_auth_providers` | Multiple auth methods per user |
+| `categories` | Expense categories |
+| `expenses` | Expense records |
 
 ---
 
-**Note**: This project is for personal use. OAuth credentials and database backups are not included in the repository for security reasons.
+## Project context
+
+Personal project. OAuth credentials and database backups are not included in the repository.
+
+**Author:** Simone Rossi
